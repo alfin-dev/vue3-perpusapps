@@ -10,7 +10,7 @@
             <div class="card-body">
                 <div class="input-group d-flex justify-content-end">
                     <div class="form-outline">
-                        <input type="search" id="form1" class="form-control" @change="Search($event.target.value)"
+                        <input type="search" id="form1" class="form-control" @keyup="Search($event.target.value)"
                             placeholder="Search..." />
                     </div>
                     <!-- <button type="button" class="btn btn-primary">

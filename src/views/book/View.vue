@@ -44,13 +44,13 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="stok">Tanggal Pinjam</label>
-                        <input type="date" class="form-control" id="tanggal_pinjam" placeholder="Stok"
-                            v-model="tanggal_pinjam" readonly>
+                        <input type="date" class="form-control" id="tanggal_pinjam" placeholder="Stok" :min="tanggal_pinjam"
+                            :max="tanggal_pinjam" v-model="tanggal_pinjam">
                     </div>
                     <div class="form-group">
                         <label for="stok">Tanggal Kembali</label>
-                        <input type="date" class="form-control" id="tanggal_kembali" placeholder="Stok"
-                            v-model="tanggal_kembali">
+                        <input type="date" class="form-control" id="tanggal_kembali" placeholder="Stok" :min="
+                            tanggal_pinjam" v-model="tanggal_kembali">
                     </div>
                 </div>
                 <div class="modal-footer">

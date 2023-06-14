@@ -37,12 +37,8 @@
                                 <td>{{ book.tanggal_pengembalian }}</td>
                                 <td>
                                     <div class="btn-group">
-                                        <router-link :to="{ name: 'book.view', params: { id: book.id } }"
+                                        <router-link :to="{ name: 'peminjaman.view', params: { id: book.id } }"
                                             class="btn btn-sm btn-outline-success">View</router-link>
-                                        <router-link :to="{ name: 'book.edit', params: { id: book.id } }"
-                                            class="btn btn-sm btn-outline-info">Edit</router-link>
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                            @click="deleteBook(book.id)">Delete</button>
                                     </div>
                                 </td>
                             </tr>
@@ -60,11 +56,9 @@
 
 <script>
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
-import Vue from 'vue'
 import Swal from 'sweetalert2'
-import Loading from 'vue-loading-overlay';
-import 'vue-loading-overlay/dist/css/index.css';
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/css/index.css'
 
 export default {
     data() {
@@ -137,7 +131,6 @@ export default {
                 confirmButtonText: 'Yes, I am sure!',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    console.log(params);
                     axios.delete('http://perpus-api.mamorasoft.com/api/book/' + params + '/delete', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
                         if (res.data.status == 200) {
                             Swal.fire({
