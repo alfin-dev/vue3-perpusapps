@@ -99,7 +99,13 @@ export default {
             }).then(res => {
                 this.members = res.data.data.users
             }).catch((err) => {
-                console.log(err.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'terjadi kesalahaan saat load data member',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
             })
         },
 

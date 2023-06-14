@@ -125,7 +125,13 @@ export default {
                 this.books = res.data.data.books
                 this.isLoading = false
             }).catch((err) => {
-                console.log(err.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'terjadi kesalahaan saat load data buku',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
             })
         },
 
@@ -178,7 +184,13 @@ export default {
                             // this.$router.push({ path: '/' })
                         }
                     }).catch((err) => {
-                        console.log(err.message);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'terjadi kesalahaan saat menghapus buku',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
                     })
                 }
             })

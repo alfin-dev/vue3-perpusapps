@@ -100,7 +100,13 @@ export default {
                 this.books = res.data.data.peminjaman
                 this.isLoading = false
             }).catch((err) => {
-                console.log(err.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'terjadi kesalahaan saat load data peminjaman buku',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
             })
         },
 

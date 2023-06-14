@@ -119,7 +119,6 @@ export default {
                 }
             ).then(res => {
                 if (res.data.status == 201) {
-                    console.log(res.data)
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
@@ -140,7 +139,13 @@ export default {
                     })
                 }
             }).catch((err) => {
-                console.log(err.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'terjadi kesalahan saat input peminjaman',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
             })
         },
 

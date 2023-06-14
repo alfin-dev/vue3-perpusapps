@@ -93,8 +93,13 @@ export default {
                 this.categories = res.data.data.categories
                 this.isLoading = false
             }).catch((err) => {
-                this.isLoading = false
-                console.log(err.message)
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'terjadi kesalahaan saat load data kategori',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
             })
         },
 
