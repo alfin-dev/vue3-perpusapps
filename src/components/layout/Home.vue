@@ -23,7 +23,9 @@
                         </li>
                     </ul>
                     <div class="justify-content-end">
-                        <button class="btn btn-outline-danger btn-sm" @click="Logout">Logout</button>
+                        <button class="nav-link" @click="Logout">
+                            <fa icon="right-from-bracket" /> Logout
+                        </button>
                     </div>
                 </div>
             </div>
@@ -51,3 +53,44 @@ export default {
     },
 }
 </script>
+
+<style>
+@media (max-width: 300.98px) {
+    .border-sm-start-none {
+        border-left: none !important;
+    }
+}
+
+.example-one .pagination-container {
+    column-gap: 10px;
+}
+
+.example-one .paginate-buttons {
+    height: 40px;
+    width: 40px;
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: rgb(242, 242, 242);
+    border: 1px solid rgb(217, 217, 217);
+    color: black;
+}
+
+.example-one .paginate-buttons:hover {
+    background-color: #d8d8d8;
+}
+
+.example-one .active-page {
+    background-color: #3498db;
+    border: 1px solid #3498db;
+    color: white;
+}
+
+.example-one .active-page:hover {
+    background-color: #2988c8;
+}
+
+.example-one .back-button:active,
+.example-one .next-button:active {
+    background-color: #c4c4c4;
+}
+</style>

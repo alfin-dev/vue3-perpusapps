@@ -12,12 +12,15 @@
                     <div class="dropdown">
                         <a class="btn btn-sm btn-outline-secondary dropdown-toggle" href="#" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            Export
+                            Export/Import
                         </a>
 
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" @click="exportBuku('pdf')">PDF</a></li>
-                            <li><a class="dropdown-item" href="#" @click="exportBuku('excel')">Excel</a></li>
+                            <li><a class="dropdown-item" href="#" @click="exportBook('pdf')">Export PDF</a></li>
+                            <li><a class="dropdown-item" href="#" @click="exportBook('excel')">Export Excel</a></li>
+                            <li><a class="dropdown-item" href="#" @click="importBook()">Import Excel</a></li>
+                            <!-- <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal">Import Excel</a></li> -->
                         </ul>
                     </div>
                 </div>
@@ -28,6 +31,7 @@
                     </div>
                 </div>
                 <div class="table table-responsive">
+                    <loading v-model:active="isLoading" :can-cancel="false" :is-full-page="fullPage" :height=64 :width=64 />
                     <table class="table">
                         <thead>
                             <tr>
@@ -44,84 +48,100 @@
                                 <td>{{ book.judul }}</td>
                                 <td>{{ book.category.nama_kategori }}</td>
                                 <td>
+                                    <div class="btn-group me-2">
+                                        <router-link :to="{ name: 'book.view', params: { id: book.id } }">
+                                            <fa icon="eye" class="text-primary" />
+                                        </router-link>
+                                    </div>
+                                    <div class="btn-group me-2">
+                                        <router-link :to="{ name: 'book.edit', params: { id: book.id } }">
+                                            <fa icon="pencil" class="text-secondary" />
+                                        </router-link>
+                                    </div>
                                     <div class="btn-group">
-                                        <router-link :to="{ name: 'book.view', params: { id: book.id } }"
-                                            class="btn btn-sm btn-outline-success">View</router-link>
-                                        <router-link :to="{ name: 'book.edit', params: { id: book.id } }"
-                                            class="btn btn-sm btn-outline-info">Edit</router-link>
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                            @click="deleteBook(book.id)">Delete</button>
+                                        <button type="button" class="nav-link" @click="deleteBook(book.id)">
+                                            <fa icon="trash" class="text-danger" />
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div>
-                    <paginate :page-count="books.last_page" :page-range="3" :margin-pages="2" :click-handler="clickCallback"
-                        :prev-text="'Prev'" :next-text="'Next'" :container-class="'pagination'" :page-class="'page-item'">
-                    </paginate>
+                <div class="example-one">
+                    <vue-awesome-paginate :total-items="books.total" :items-per-page="books.per_page" :max-pages-shown="3"
+                        :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<style>
-@media (max-width: 300.98px) {
-    .border-sm-start-none {
-        border-left: none !important;
-    }
-}
-</style>
 <script>
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import Paginate from 'vuejs-paginate-next'
+import Loading from 'vue-loading-overlay';
 
 export default {
-    components: {
-        paginate: Paginate,
+    updated() {
+        const parentVue = this
+        let buttonDownload = document.getElementById('btn-download-template')
+        if (buttonDownload != null) {
+            buttonDownload.addEventListener('click', function (e) {
+                parentVue.downloadTemplate()
+            })
+        }
     },
     data() {
         return {
             books: [],
-            current_page: 1,
+            page: 1,
             search: '',
             basepath: 'storage/',
             token: localStorage.getItem('token'),
+            isLoading: false,
+            fullPage: false,
         }
     },
-    mounted() {
+    components: {
+        Loading
+    },
+    beforeMount() {
         this.load()
+    },
+    mounted() {
     },
     methods: {
         load() {
+            this.isLoading = true
             axios.get(this.apiUrl + 'api/book/all', {
                 'headers': { 'Authorization': 'Bearer ' + this.token },
                 'params': {
-                    page: this.current_page,
+                    page: this.page,
                     search: this.search,
                     per_page: 10
                 },
             }).then(res => {
                 this.books = res.data.data.books
+                this.isLoading = false
             }).catch((err) => {
                 console.log(err.message);
             })
         },
 
         clickCallback(pageNum) {
-            this.current_page = pageNum
+            this.page = pageNum
             this.load()
         },
 
         Search: function (value) {
             if (value == null || value == '') {
-                this.$router.go(0);
+                this.search = ''
+                this.page = 1
+                this.load()
             } else {
                 this.search = value
-                this.current_page = 1
+                // this.page = 1
                 this.load()
             }
         },
@@ -136,7 +156,6 @@ export default {
                 confirmButtonText: 'Yes, I am sure!',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    console.log(params);
                     axios.delete(this.apiUrl + 'api/book/' + params + '/delete', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
                         if (res.data.status == 200) {
                             Swal.fire({
@@ -146,6 +165,7 @@ export default {
                                 showConfirmButton: false,
                                 timer: 1500
                             })
+                            this.page = 1
                             this.load()
                         } else {
                             Swal.fire({
@@ -164,13 +184,80 @@ export default {
             })
         },
 
-        exportBuku(params) {
+        exportBook(params) {
             axios.get(this.apiUrl + 'api/book/export/' + params, {
                 'headers': { 'Authorization': 'Bearer ' + this.token },
             }).then(res => {
                 window.open(this.apiUrl + res.data.path, '_blank')
             }).catch((err) => {
                 console.log(err.message)
+            })
+        },
+
+        async importBook() {
+            const { value: file } = await Swal.fire({
+                title: 'Select a file',
+                input: 'file',
+                html:
+                    '<button  :click="downloadTemplate" class="nav-link text-primary" id="btn-download-template">Download Template</button>',
+                inputAttributes: {
+                    'accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'aria-label': 'Upload your Excel File'
+                }
+            })
+
+            if (file) {
+                if (file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                    axios.post(
+                        "http://perpus-api.mamorasoft.com/api/book/import/excel",
+                        {
+                            file_import: file
+                        },
+                        {
+                            'headers': {
+                                'Content-Type': 'multipart/form-data',
+                                'Authorization': 'Bearer ' + this.token
+                            }
+                        }
+                    ).then(res => {
+                        console.log(res.data);
+                        if (res.data.status == 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: res.data.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            this.search = ''
+                            this.page = 1
+                            this.load()
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: res.data.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    }).catch((err) => {
+                        console.log(err.message);
+                    })
+                }
+                else {
+                    alert('ini salah')
+                }
+            }
+        },
+
+        downloadTemplate() {
+            axios.get(this.apiUrl + 'api/book/download/template', {
+                'headers': { 'Authorization': 'Bearer ' + this.token },
+            }).then(res => {
+                window.open(this.apiUrl + res.data.path, '_blank')
+            }).catch((err) => {
+                console.log(err.message);
             })
         }
     },

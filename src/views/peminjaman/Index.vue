@@ -17,39 +17,41 @@
                         Search
                     </button> -->
                 <!-- </div> -->
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Cover</th>
-                            <th>Title</th>
-                            <th>Tanggal Peminjaman</th>
-                            <th>Tanggal Pengembalian</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="book in books.data">
-                            <td><img :src="basepath + book.book.path" alt="" style="width: 40px; height: 40px;"></td>
-                            <td>{{ book.book.judul }}</td>
-                            <td>{{ book.tanggal_peminjaman }}</td>
-                            <td>{{ book.tanggal_pengembalian }}</td>
-                            <td>
-                                <div class="btn-group">
-                                    <router-link :to="{ name: 'book.view', params: { id: book.id } }"
-                                        class="btn btn-sm btn-outline-success">View</router-link>
-                                    <router-link :to="{ name: 'book.edit', params: { id: book.id } }"
-                                        class="btn btn-sm btn-outline-info">Edit</router-link>
-                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                        @click="deleteBook(book.id)">Delete</button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div>
-                    <paginate :page-count="books.last_page" :page-range="3" :margin-pages="2" :click-handler="clickCallback"
-                        :prev-text="'Prev'" :next-text="'Next'" :container-class="'pagination'" :page-class="'page-item'">
-                    </paginate>
+                <div class="table table-responsive">
+                    <loading v-model:active="isLoading" :can-cancel="false" :is-full-page="fullPage" :height=64 :width=64 />
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Cover</th>
+                                <th>Title</th>
+                                <th>Tanggal Peminjaman</th>
+                                <th>Tanggal Pengembalian</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="book in books.data">
+                                <td><img :src="basepath + book.book.path" alt="" style="width: 40px; height: 40px;"></td>
+                                <td>{{ book.book.judul }}</td>
+                                <td>{{ book.tanggal_peminjaman }}</td>
+                                <td>{{ book.tanggal_pengembalian }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <router-link :to="{ name: 'book.view', params: { id: book.id } }"
+                                            class="btn btn-sm btn-outline-success">View</router-link>
+                                        <router-link :to="{ name: 'book.edit', params: { id: book.id } }"
+                                            class="btn btn-sm btn-outline-info">Edit</router-link>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            @click="deleteBook(book.id)">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="example-one">
+                    <vue-awesome-paginate :total-items="books.total" :items-per-page="books.per_page" :max-pages-shown="3"
+                        :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />
                 </div>
             </div>
         </div>
@@ -61,51 +63,60 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import Vue from 'vue'
 import Swal from 'sweetalert2'
-import Paginate from 'vuejs-paginate-next';
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/css/index.css';
 
 export default {
-    components: {
-        paginate: Paginate,
-    },
     data() {
         return {
             books: [],
-            current_page: 1,
+            page: 1,
             search: '',
             basepath: 'http://perpus-api.mamorasoft.com/storage/',
             token: localStorage.getItem('token'),
+            isLoading: false,
+            fullPage: false
         }
     },
     mounted() {
         this.load()
     },
+
+    components: {
+        Loading
+    },
+
     methods: {
         load() {
+            this.isLoading = true
             axios.get('http://perpus-api.mamorasoft.com/api/peminjaman', {
                 'headers': { 'Authorization': 'Bearer ' + this.token },
                 'params': {
-                    page: this.current_page,
+                    page: this.page,
                     search: this.search,
                     per_page: 10
                 },
             }).then(res => {
                 this.books = res.data.data.peminjaman
+                this.isLoading = false
             }).catch((err) => {
                 console.log(err.message);
             })
         },
 
         clickCallback(pageNum) {
-            this.current_page = pageNum
+            this.page = pageNum
             this.load()
         },
 
         Search: function (value) {
             if (value == null || value == '') {
-                this.$router.go(0);
+                this.search = ''
+                this.page = 1
+                this.load()
             } else {
                 this.search = value
-                this.current_page = 1
+                this.page = 1
                 this.load()
             }
         },
@@ -130,6 +141,7 @@ export default {
                                 showConfirmButton: false,
                                 timer: 1500
                             })
+                            this.page = 1
                             this.load()
                         } else {
                             Swal.fire({

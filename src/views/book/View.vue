@@ -1,36 +1,65 @@
 <template>
     <div class="container">
-        <section class="vh-100 gradient-custom-2">
-            <div class="container py-5 h-100">
-                <div class="row d-flex justify-content-center align-items-center h-100">
-                    <div class="col-md-10 col-lg-8 col-xl-6">
-                        <div class="card card-stepper" style="border-radius: 16px;">
-                            <div class="card-header p-4">
-                                <div class="d-flex justify-content-end align-items-center">
-                                    <div>
-                                        <h6 class="mb-0"> <a href="#">Pinjam Buku</a> </h6>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body p-4">
-                                <div class="d-flex flex-row mb-4 pb-2">
-                                    <div class="flex-fill">
-                                        <h5 class="bold">{{ formView.judul }}</h5>
-                                        <p class="text-muted"> Qt: {{ formView.stok }} item</p>
-                                        <span class="small text-muted"> {{
-                                            nama_kategori }} </span>
-                                    </div>
-                                    <div>
-                                        <img class="align-self-center img-fluid" :src="basepath + formView.path"
-                                            width="250">
-                                    </div>
-                                </div>
-                            </div>
+        <div class="card">
+            <div class="container-fliud">
+                <div class="wrapper row">
+                    <div class="preview col-md-6">
+
+                        <div class="preview-pic tab-content">
+                            <div class="tab-pane active" id="pic-1"><img :src="basepath + formView.path" /></div>
+                        </div>
+
+                    </div>
+                    <div class="details col-md-6">
+                        <h3 class="product-title">{{ formView.judul }}</h3>
+                        <p class="product-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
+                            viverra tristique ipsum et blandit. Phasellus ut libero arcu. Mauris et massa a enim iaculis
+                            efficitur in vel urna. Phasellus a porta eros. Mauris aliquam, leo sit amet egestas ullamcorper,
+                            enim urna ultrices elit, ac accumsan nunc metus a metus. Phasellus velit lorem, semper sit amet
+                            nibh ac, mollis suscipit massa. Praesent vel purus egestas, dictum sapien non, mollis leo. Donec
+                            id leo ut mi luctus aliquam eget ut lorem. Quisque a ex diam.</p>
+                        <h4 class="price">current stock: <span>{{ formView.stok }}</span></h4>
+                        <p class="vote"><strong>91%</strong> of members enjoyed this book! <strong>(87 votes)</strong></p>
+                        <h5 class="colors"></h5>
+                        <div class="action">
+                            <button v-if="formView.stok > 0" class="add-to-cart btn btn-default btn btn-sm" type="button"
+                                data-bs-toggle="modal" data-bs-target="#modalPinjam">Pinjam
+                                Buku</button>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalPinjam" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Pinjam Buku</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="stok">Tanggal Pinjam</label>
+                        <input type="date" class="form-control" id="tanggal_pinjam" placeholder="Stok"
+                            v-model="tanggal_pinjam" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="stok">Tanggal Kembali</label>
+                        <input type="date" class="form-control" id="tanggal_kembali" placeholder="Stok"
+                            v-model="tanggal_kembali">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="pinjamBuku"
+                        data-bs-dismiss="modal">Submit</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -41,17 +70,18 @@ import Swal from 'sweetalert2'
 
 export default {
     setup() {
-        const route = useRoute()
     },
     data() {
         const route = useRoute()
         return {
             book: [],
             formView: {},
-            nama_kategori: '',
+            tanggal_pinjam: new Date().toISOString().slice(0, 10),
+            tanggal_kembali: new Date().toISOString().slice(0, 10),
             basepath: 'http://perpus-api.mamorasoft.com/storage/',
             id: route.params.id,
             token: localStorage.getItem('token'),
+            id_user: localStorage.getItem('id_user')
         }
     },
     mounted() {
@@ -66,97 +96,302 @@ export default {
                 console.log(err.message);
             })
         },
+
+        pinjamBuku() {
+            let convert_tanggal_pinjam = new Date(this.tanggal_pinjam)
+            let convert_tanggal_kembali = new Date(this.tanggal_kembali)
+            convert_tanggal_pinjam = this.dateFormater(convert_tanggal_pinjam)
+            convert_tanggal_kembali = this.dateFormater(convert_tanggal_kembali)
+            axios.post(
+                "http://perpus-api.mamorasoft.com/api/peminjaman/book/" + this.formView.id + "/member/" + this.id_user,
+                {
+                    id_buku: this.formView.id,
+                    id_member: this.id_user,
+                    tanggal_peminjaman: convert_tanggal_pinjam,
+                    tanggal_pengembalian: convert_tanggal_kembali,
+                    bypass: 1
+                },
+                {
+                    'headers': {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': 'Bearer ' + this.token
+                    }
+                }
+            ).then(res => {
+                if (res.data.status == 201) {
+                    console.log(res.data)
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: res.data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        this.load()
+                    })
+                } else {
+                    console.log(res.data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: res.data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            }).catch((err) => {
+                console.log(err.message);
+            })
+        },
+
+        dateFormater(date) {
+            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            var day = date.getDate();
+            // get month from 0 to 11
+            var month = date.getMonth();
+            // conver month digit to month name
+            month = months[month];
+            var year = date.getFullYear();
+
+            // show date in two digits
+            if (day < 10) {
+                day = '0' + day;
+            }
+
+            // now we have day, month and year
+            // arrange them in the format we want
+            return month + ' ' + day + ', ' + year;
+        }
     },
 }
 </script>
 
-<style>
-.gradient-custom-2 {
-    /* fallback for old browsers */
-    background: #a1c4fd;
-
-    /* Chrome 10-25, Safari 5.1-6 */
-    background: -webkit-linear-gradient(to right, rgba(161, 196, 253, 1), rgba(194, 233, 251, 1));
-
-    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-    background: linear-gradient(to right, rgba(161, 196, 253, 1), rgba(194, 233, 251, 1))
+<style scoped>
+/*****************globals*************/
+body {
+    font-family: 'open sans';
+    overflow-x: hidden;
 }
 
-#progressbar-1 {
-    color: #455A64;
+img {
+    max-width: 100%;
 }
 
-#progressbar-1 li {
-    list-style-type: none;
-    font-size: 13px;
-    width: 33.33%;
-    float: left;
-    position: relative;
+.preview {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
 }
 
-#progressbar-1 #step1:before {
-    content: "1";
-    color: #fff;
-    width: 29px;
-    margin-left: 22px;
-    padding-left: 11px;
+@media screen and (max-width: 996px) {
+    .preview {
+        margin-bottom: 20px;
+    }
 }
 
-#progressbar-1 #step2:before {
-    content: "2";
-    color: #fff;
-    width: 29px;
+.preview-pic {
+    -webkit-box-flex: 1;
+    -webkit-flex-grow: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
 }
 
-#progressbar-1 #step3:before {
-    content: "3";
-    color: #fff;
-    width: 29px;
-    margin-right: 22px;
-    text-align: center;
+.preview-thumbnail.nav-tabs {
+    border: none;
+    margin-top: 15px;
 }
 
-#progressbar-1 li:before {
-    line-height: 29px;
+.preview-thumbnail.nav-tabs li {
+    width: 18%;
+    margin-right: 2.5%;
+}
+
+.preview-thumbnail.nav-tabs li img {
+    max-width: 100%;
     display: block;
-    font-size: 12px;
-    background: #455A64;
-    border-radius: 50%;
-    margin: auto;
 }
 
-#progressbar-1 li:after {
-    content: '';
-    width: 121%;
-    height: 2px;
-    background: #455A64;
-    position: absolute;
-    left: 0%;
-    right: 0%;
-    top: 15px;
-    z-index: -1;
+.preview-thumbnail.nav-tabs li a {
+    padding: 0;
+    margin: 0;
 }
 
-#progressbar-1 li:nth-child(2):after {
-    left: 50%
+.preview-thumbnail.nav-tabs li:last-of-type {
+    margin-right: 0;
 }
 
-#progressbar-1 li:nth-child(1):after {
-    left: 25%;
-    width: 121%
+.tab-content {
+    overflow: hidden;
 }
 
-#progressbar-1 li:nth-child(3):after {
-    left: 25%;
-    width: 50%;
+.tab-content img {
+    width: 100%;
+    -webkit-animation-name: opacity;
+    animation-name: opacity;
+    -webkit-animation-duration: .3s;
+    animation-duration: .3s;
 }
 
-#progressbar-1 li.active:before,
-#progressbar-1 li.active:after {
-    background: #1266f1;
+.card {
+    margin-top: 50px;
+    background: #eee;
+    padding: 3em;
+    line-height: 1.5em;
 }
 
-.card-stepper {
-    z-index: 0
+@media screen and (min-width: 997px) {
+    .wrapper {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+    }
 }
+
+.details {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+
+.colors {
+    -webkit-box-flex: 1;
+    -webkit-flex-grow: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+}
+
+.product-title,
+.price,
+.sizes,
+.colors {
+    text-transform: UPPERCASE;
+    font-weight: bold;
+}
+
+.checked,
+.price span {
+    color: #ff9f1a;
+}
+
+.product-title,
+.rating,
+.product-description,
+.price,
+.vote,
+.sizes {
+    margin-bottom: 15px;
+}
+
+.product-title {
+    margin-top: 0;
+}
+
+.size {
+    margin-right: 10px;
+}
+
+.size:first-of-type {
+    margin-left: 40px;
+}
+
+.color {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+    height: 2em;
+    width: 2em;
+    border-radius: 2px;
+}
+
+.color:first-of-type {
+    margin-left: 20px;
+}
+
+.add-to-cart,
+.like {
+    background: #ff9f1a;
+    padding: 1.2em 1.5em;
+    border: none;
+    text-transform: UPPERCASE;
+    font-weight: bold;
+    color: #fff;
+    -webkit-transition: background .3s ease;
+    transition: background .3s ease;
+}
+
+.add-to-cart:hover,
+.like:hover {
+    background: #b36800;
+    color: #fff;
+}
+
+.not-available {
+    text-align: center;
+    line-height: 2em;
+}
+
+.not-available:before {
+    font-family: fontawesome;
+    content: "\f00d";
+    color: #fff;
+}
+
+.orange {
+    background: #ff9f1a;
+}
+
+.green {
+    background: #85ad00;
+}
+
+.blue {
+    background: #0076ad;
+}
+
+.tooltip-inner {
+    padding: 1.3em;
+}
+
+@-webkit-keyframes opacity {
+    0% {
+        opacity: 0;
+        -webkit-transform: scale(3);
+        transform: scale(3);
+    }
+
+    100% {
+        opacity: 1;
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+}
+
+@keyframes opacity {
+    0% {
+        opacity: 0;
+        -webkit-transform: scale(3);
+        transform: scale(3);
+    }
+
+    100% {
+        opacity: 1;
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+}
+
+/*# sourceMappingURL=style.css.map */
 </style>

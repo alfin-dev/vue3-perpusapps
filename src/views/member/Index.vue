@@ -61,11 +61,9 @@
                         </tr>
                     </tbody>
                 </table>
-                <div>
-                    <paginate :page-count="members.last_page" :page-range="3" :margin-pages="2"
-                        :click-handler="clickCallback" :prev-text="'Prev'" :next-text="'Next'"
-                        :container-class="'pagination'" :page-class="'page-item'">
-                    </paginate>
+                <div class="example-one">
+                    <vue-awesome-paginate :total-items="members.total" :items-per-page="members.per_page"
+                        :max-pages-shown="3" :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />
                 </div>
             </div>
         </div>
@@ -74,19 +72,13 @@
 
 <script>
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
-import Vue from 'vue'
 import Swal from 'sweetalert2'
-import Paginate from 'vuejs-paginate-next';
 
 export default {
-    components: {
-        paginate: Paginate,
-    },
     data() {
         return {
             members: [],
-            current_page: 1,
+            page: 1,
             search: '',
             basepath: 'http://perpus-api.mamorasoft.com/storage/',
             token: localStorage.getItem('token'),
@@ -100,7 +92,7 @@ export default {
             axios.get('http://perpus-api.mamorasoft.com/api/user/all', {
                 'headers': { 'Authorization': 'Bearer ' + this.token },
                 'params': {
-                    page: this.current_page,
+                    page: this.page,
                     search: this.search,
                     per_page: 10
                 },
@@ -112,16 +104,18 @@ export default {
         },
 
         clickCallback(pageNum) {
-            this.current_page = pageNum
+            this.page = pageNum
             this.load()
         },
 
         Search: function (value) {
             if (value == null || value == '') {
-                this.$router.go(0);
+                this.page = 1
+                this.search = ''
+                this.load()
             } else {
                 this.search = value
-                this.current_page = 1
+                this.page = 1
                 this.load()
             }
         },
@@ -146,6 +140,7 @@ export default {
                                 showConfirmButton: false,
                                 timer: 1500
                             })
+                            this.page = 1
                             this.load()
                         } else {
                             Swal.fire({

@@ -117,8 +117,9 @@ export default {
                         text: res.data.message,
                         showConfirmButton: false,
                         timer: 1500
+                    }).then(() => {
+                        this.$router.push({ path: '/book' })
                     })
-                    this.$router.push({ path: '/' })
                 }
             }).catch((err) => {
                 console.log(err.message);

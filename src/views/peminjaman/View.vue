@@ -70,7 +70,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .gradient-custom-2 {
     /* fallback for old browsers */
     background: #a1c4fd;

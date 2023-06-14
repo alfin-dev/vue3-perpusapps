@@ -83,7 +83,6 @@ export default {
             })
         },
         async storeBook() {
-            console.log('click');
             axios.post(
                 "http://perpus-api.mamorasoft.com/api/book/create",
                 {
@@ -104,8 +103,9 @@ export default {
                         text: res.data.message,
                         showConfirmButton: false,
                         timer: 1500
+                    }).then(() => {
+                        this.$router.push({ path: '/book' })
                     })
-                    this.$router.push({ path: '/' })
                 } else {
                     console.log(res.data.message);
                     Swal.fire({
@@ -120,6 +120,7 @@ export default {
                 console.log(err.message);
             })
         },
+
         onChangeImage(e) {
             const file = e.target.files[0]
             this.image = file

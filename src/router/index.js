@@ -3,6 +3,7 @@ import {
   createWebHistory
 } from 'vue-router'
 import Home from '../components/layout/Home.vue'
+import PageNotFound from '../components/layout/404.vue'
 import BookCreate from '../views/book/Create.vue'
 import BookIndex from '../views/book/Index.vue'
 import BookEdit from '../views/book/Edit.vue'
@@ -93,7 +94,14 @@ const routes = [{
     path: '/register',
     name: 'register',
     component: () => import('../components/layout/Register.vue')
-  }
+  },
+
+  //404 page not found
+  {
+    path: '/:pathMatch(.*)*',
+    component: PageNotFound
+  },
+
 ]
 
 const router = createRouter({
@@ -102,7 +110,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  var authenticated = localStorage.getItem('token');
+  var authenticated = localStorage.getItem('token')
   if (to.name !== 'login' && to.name !== 'register' && !authenticated) {
     next({
       name: 'login'
@@ -111,7 +119,12 @@ router.beforeEach((to, from, next) => {
   if (to.name === 'register' && !authenticated) {
     next()
   }
-  if (to.name === 'login' && to.name === 'register' && authenticated && authenticated != '') {
+  if (to.name === 'login' && authenticated && authenticated != '') {
+    next({
+      name: 'dashboard'
+    })
+  }
+  if (to.name === 'register' && authenticated && authenticated != '') {
     next({
       name: 'dashboard'
     })

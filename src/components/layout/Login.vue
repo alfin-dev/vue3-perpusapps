@@ -20,7 +20,10 @@
             </div>
 
             <!-- Submit button -->
-            <button type="button" class="btn btn-primary btn-lg btn-block" @click="storeUser">Sign in</button>
+            <div>
+              <loading v-model:active="isLoading" :can-cancel="false" :is-full-page="fullPage" />
+              <button type="button" class="btn btn-primary btn-lg btn-block" @click="storeUser">Sign in</button>
+            </div>
 
             <div class="divider d-flex align-items-center my-4">
               <p class="text-center fw-bold mx-3 mb-0 text-muted">OR</p>
@@ -42,6 +45,8 @@
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import Swal from 'sweetalert2'
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/css/index.css';
 
 export default {
 
@@ -49,10 +54,18 @@ export default {
     return {
       username: '',
       password: '',
+      isLoading: false,
+      fullPage: false
     }
   },
+
+  components: {
+    Loading
+  },
+
   methods: {
     async storeUser() {
+      this.isLoading = true
       try {
         const user = await axios.post(
           "http://perpus-api.mamorasoft.com/api/login",
@@ -63,15 +76,26 @@ export default {
         );
         localStorage.setItem('token', user.data.data.token);
         localStorage.setItem('role', user.data.data.user.roles[0].name);
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Berhasil Login',
+        localStorage.setItem('id_user', user.data.data.user.id);
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
           showConfirmButton: false,
-          timer: 1500
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        })
+
+        Toast.fire({
+          icon: 'success',
+          title: 'Signed in successfully'
         })
         this.$router.push({ path: '/' })
       } catch (e) {
+        this.isLoading = false
         Swal.fire({
           icon: 'error',
           title: 'Error',

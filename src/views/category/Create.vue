@@ -56,8 +56,9 @@ export default {
                         text: res.data.message,
                         showConfirmButton: false,
                         timer: 1500
+                    }).then(() => {
+                        this.$router.push({ name: 'category.index' })
                     })
-                    this.$router.push({ name: 'category.index' })
                 } else {
                     console.log(res.data.message);
                     Swal.fire({
