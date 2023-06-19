@@ -1,55 +1,42 @@
 <template>
-    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap@4.5.3/dist/css/bootstrap.css" />
     <div class="container my-4">
-        <div class="d-flex justify-content-end mb-2">
-            <router-link :to="{ name: 'book.create' }" class="btn btn-primary">Create</router-link>
-        </div>
         <div class="card rounded shadow">
             <div class="card-header">
                 List Member
             </div>
             <div class="card-body">
-                <!-- <div class="input-group d-flex justify-content-end">
-                    <div class="form-outline">
-                        <input type="search" id="form1" class="form-control" @change="Search($event.target.value)"
-                            placeholder="Search..." />
-                    </div> -->
-                <!-- <button type="button" class="btn btn-primary">
-                        Search
-                    </button> -->
-                <!-- </div> -->
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Profile</th>
-                            <th>Nama</th>
-                            <th>Username</th>
-                            <th>Status User</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="member in members.data">
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="https://mdbootstrap.com/img/new/avatars/8.jpg" alt=""
-                                        style="width: 45px; height: 45px" class="rounded-circle" />
-                                    <div class="ms-3">
-                                        <p class="fw-bold mb-1">{{ member.name }}</p>
-                                        <p class="text-muted mb-0">{{ member.email }}</p>
+                <div class="table table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Profile</th>
+                                <th>Nama</th>
+                                <th>Username</th>
+                                <th>Status User</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="member in members.data">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://mdbootstrap.com/img/new/avatars/8.jpg" alt=""
+                                            style="width: 45px; height: 45px" class="rounded-circle" />
+                                        <div class="ms-3">
+                                            <p class="fw-bold mb-1">{{ member.name }}</p>
+                                            <p class="text-muted mb-0">{{ member.email }}</p>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td>{{ member.name }}</td>
-                            <td>{{ member.username }}</td>
-                            <td>
-                                <span v-if="member.roles[0].name == 'admin'"
-                                    class="badge badge-success rounded-pill d-inline">Admin</span>
-                                <span v-if="member.roles[0].name == 'member'"
-                                    class="badge badge-info rounded-pill d-inline">Member</span>
-                            </td>
-                            <td>
-                                <!-- <div class="btn-group">
+                                </td>
+                                <td>{{ member.name }}</td>
+                                <td>{{ member.username }}</td>
+                                <td>
+                                    <span v-if="member.roles[0].name == 'admin'" class="badge text-bg-success">Admin</span>
+                                    <span v-if="member.roles[0].name == 'member'"
+                                        class="badge text-bg-primary">Member</span>
+                                </td>
+                                <td>
+                                    <!-- <div class="btn-group">
                                     <router-link :to="{ name: 'book.view', params: { id: member.id } }"
                                         class="btn btn-sm btn-outline-success">View</router-link>
                                     <router-link :to="{ name: 'book.edit', params: { id: member.id } }"
@@ -57,10 +44,11 @@
                                     <button type="button" class="btn btn-sm btn-outline-danger"
                                         @click="deleteBook(member.id)">Delete</button>
                                 </div> -->
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <div class="example-one">
                     <vue-awesome-paginate :total-items="members.total" :items-per-page="members.per_page"
                         :max-pages-shown="3" :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />

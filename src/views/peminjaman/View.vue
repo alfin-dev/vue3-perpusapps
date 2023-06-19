@@ -18,13 +18,17 @@
                             enim urna ultrices elit, ac accumsan nunc metus a metus. Phasellus velit lorem, semper sit amet
                             nibh ac, mollis suscipit massa. Praesent vel purus egestas, dictum sapien non, mollis leo. Donec
                             id leo ut mi luctus aliquam eget ut lorem. Quisque a ex diam.</p>
-                        <h6 class="price">Tanggal Peminjaman: <span>{{ peminjaman.tanggal_peminjaman }}</span></h6>
-                        <h6 class="price">Batas Pengembalian: <span>{{ peminjaman.tanggal_pengembalian }}</span></h6>
+                        <h6>Tanggal Peminjaman: <span class="text-primary">{{ peminjaman.tanggal_peminjaman }}</span></h6>
+                        <h6 v-if="peminjaman.status == '2'">Batas Pengembalian: <span class="text-warning">{{
+                            peminjaman.tanggal_pengembalian }}</span></h6>
+                        <h6 v-if="peminjaman.status == '3'">Pengembalian: <span class="text-success">{{
+                            peminjaman.tanggal_pengembalian }}</span></h6>
                         <h5 class="colors"></h5>
                         <div class="action">
-                            <button class="add-to-cart btn btn-default btn btn-sm" type="button" data-bs-toggle="modal"
-                                data-bs-target="#modalPinjam">Kembalikan
+                            <button v-if="peminjaman.status == '2'" class="add-to-cart btn btn-default btn btn-sm"
+                                type="button" data-bs-toggle="modal" data-bs-target="#modalPinjam">Kembalikan
                                 Buku</button>
+                            <h6 v-if="peminjaman.status == '3'">Sudah dikembalikan</h6>
                         </div>
                     </div>
                 </div>
@@ -95,51 +99,47 @@ export default {
         returnBuku() {
             let convert_tanggal_kembali = new Date(this.tanggal_kembali)
             convert_tanggal_kembali = this.dateFormater(convert_tanggal_kembali)
-            // axios.post(
-            //     "http://perpus-api.mamorasoft.com/api/peminjaman/book/" + this.formView.id + "/member/" + this.id_user,
-            //     {
-            //         id_buku: this.formView.id,
-            //         id_member: this.id_user,
-            //         tanggal_peminjaman: convert_tanggal_pinjam,
-            //         tanggal_pengembalian: convert_tanggal_kembali,
-            //         bypass: 1
-            //     },
-            //     {
-            //         'headers': {
-            //             'Content-Type': 'multipart/form-data',
-            //             'Authorization': 'Bearer ' + this.token
-            //         }
-            //     }
-            // ).then(res => {
-            //     if (res.data.status == 201) {
-            //         Swal.fire({
-            //             icon: 'success',
-            //             title: 'Success',
-            //             text: res.data.message,
-            //             showConfirmButton: false,
-            //             timer: 1500
-            //         }).then(() => {
-            //             this.load()
-            //         })
-            //     } else {
-            //         console.log(res.data.message);
-            //         Swal.fire({
-            //             icon: 'error',
-            //             title: 'Oops...',
-            //             text: res.data.message,
-            //             showConfirmButton: false,
-            //             timer: 1500
-            //         })
-            //     }
-            // }).catch((err) => {
-            //     Swal.fire({
-            //         icon: 'error',
-            //         title: 'Oops...',
-            //         text: 'terjadi kesalahan saat input peminjaman',
-            //         showConfirmButton: false,
-            //         timer: 1500
-            //     })
-            // })
+            axios.post(
+                "http://perpus-api.mamorasoft.com/api/peminjaman/book/" + this.peminjaman.id + "/return",
+                {
+                    tanggal_pengembalian: convert_tanggal_kembali,
+                },
+                {
+                    'headers': {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': 'Bearer ' + this.token
+                    }
+                }
+            ).then(res => {
+                if (res.data.status == 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: res.data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        this.load()
+                    })
+                } else {
+                    console.log(res.data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: res.data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            }).catch((err) => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'terjadi kesalahan saat input peminjaman',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            })
         },
 
         dateFormater(date) {
@@ -280,9 +280,6 @@ img {
 }
 
 .checked,
-.price span {
-    color: #ff9f1a;
-}
 
 .product-title,
 .rating,

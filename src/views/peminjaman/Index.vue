@@ -1,22 +1,10 @@
 <template>
     <div class="container">
-        <div class="d-flex justify-content-end mb-2">
-            <router-link :to="{ name: 'book.create' }" class="btn btn-primary">Create</router-link>
-        </div>
         <div class="card rounded shadow">
             <div class="card-header">
                 List Peminjaman
             </div>
             <div class="card-body">
-                <!-- <div class="input-group d-flex justify-content-end">
-                    <div class="form-outline">
-                        <input type="search" id="form1" class="form-control" @change="Search($event.target.value)"
-                            placeholder="Search..." />
-                    </div> -->
-                <!-- <button type="button" class="btn btn-primary">
-                        Search
-                    </button> -->
-                <!-- </div> -->
                 <div class="table table-responsive">
                     <loading v-model:active="isLoading" :can-cancel="false" :is-full-page="fullPage" :height=64 :width=64 />
                     <table class="table">
@@ -26,6 +14,7 @@
                                 <th>Title</th>
                                 <th>Tanggal Peminjaman</th>
                                 <th>Tanggal Pengembalian</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -35,6 +24,10 @@
                                 <td>{{ book.book.judul }}</td>
                                 <td>{{ book.tanggal_peminjaman }}</td>
                                 <td>{{ book.tanggal_pengembalian }}</td>
+                                <td>
+                                    <span v-if="book.status == '2'" class="badge text-bg-primary">Dipinjam</span>
+                                    <span v-if="book.status == '3'" class="badge text-bg-success">Dikembalikan</span>
+                                </td>
                                 <td>
                                     <div class="btn-group">
                                         <router-link :to="{ name: 'peminjaman.view', params: { id: book.id } }"

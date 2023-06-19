@@ -1,38 +1,47 @@
 <template>
-    <header>
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-white">
-            <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarExample01"
-                    aria-controls="navbarExample01" aria-expanded="false" aria-label="Toggle navigation">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarExample01">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item active">
-                            <router-link :to="{ name: 'book.index' }" class="nav-link">Book</router-link>
-                        </li>
-                        <li class="nav-item">
-                            <router-link :to="{ name: 'category.index' }" class="nav-link">Kategori</router-link>
-                        </li>
-                        <li class="nav-item">
-                            <router-link :to="{ name: 'peminjaman.index' }" class="nav-link">Peminjaman</router-link>
-                        </li>
-                        <li class="nav-item">
-                            <router-link :to="{ name: 'member.index' }" class="nav-link">Member</router-link>
-                        </li>
-                    </ul>
-                    <div class="justify-content-end">
-                        <button class="nav-link" @click="Logout">
-                            <fa icon="right-from-bracket" /> Logout
-                        </button>
-                    </div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" style="background-color: #e3f2fd;">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarExample01"
+                aria-controls="navbarExample01" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarExample01">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <router-link :to="{ name: 'dashboard' }" class="nav-link"
+                            :class="$route.name == 'dashboard' ? 'active' : ''"><b>Dashboard</b></router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link :to="{ name: 'book.index' }" class="nav-link"
+                            :class="$route.name == 'book.index' ? 'active' : ''"><b>Book</b></router-link>
+                    </li>
+                    <li class="nav-item" v-if="role == 'admin'">
+                        <router-link :to="{ name: 'category.index' }" class="nav-link"
+                            :class="$route.name == 'category.index' ? 'active' : ''"><b>Kategori</b></router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link :to="{ name: 'peminjaman.index' }" class="nav-link"
+                            :class="$route.name == 'peminjaman.index' ? 'active' : ''"><b>Peminjaman</b></router-link>
+                    </li>
+                    <li class="nav-item" v-if="role == 'admin'">
+                        <router-link :to="{ name: 'member.index' }" class="nav-link"
+                            :class="$route.name == 'member.index' ? 'active' : ''"><b>Member</b></router-link>
+                    </li>
+                </ul>
+                <span class="navbar-text me-2">
+                    {{ user.name }},
+                </span>
+                <div class="d-flex">
+                    <button class="nav-link" @click="Logout">
+                        <fa icon="right-from-bracket" /> <span class="navbar-text">Logout</span>
+                    </button>
                 </div>
             </div>
-        </nav>
-        <!-- Navbar -->
+        </div>
+    </nav>
+    <!-- Navbar -->
 
-    </header>
     <router-view />
 </template>
 
@@ -41,11 +50,23 @@ import axios from 'axios'
 export default {
     data() {
         return {
+            id_user: localStorage.getItem('id_user'),
+            token: localStorage.getItem('token'),
+            role: localStorage.getItem('role'),
+            user: {}
         }
     },
     mounted() {
+        this.getUser()
     },
     methods: {
+        getUser() {
+            axios.get('http://perpus-api.mamorasoft.com/api/user/' + this.id_user, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
+                this.user = res.data.data.user
+            }).catch((err) => {
+                console.log(err.message);
+            })
+        },
         Logout() {
             localStorage.removeItem('token')
             this.$router.push({ name: 'login' });

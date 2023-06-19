@@ -4,6 +4,7 @@ import {
 } from 'vue-router'
 import Home from '../components/layout/Home.vue'
 import PageNotFound from '../components/layout/404.vue'
+import Unauthorized from '../components/layout/401.vue'
 import BookCreate from '../views/book/Create.vue'
 import BookIndex from '../views/book/Index.vue'
 import BookEdit from '../views/book/Edit.vue'
@@ -101,6 +102,11 @@ const routes = [{
     path: '/:pathMatch(.*)*',
     component: PageNotFound
   },
+  {
+    path: '/unauthorized',
+    name: 'unauthorized',
+    component: Unauthorized
+  },
 
 ]
 
@@ -111,6 +117,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   var authenticated = localStorage.getItem('token')
+  var role = localStorage.getItem('role')
   if (to.name !== 'login' && to.name !== 'register' && !authenticated) {
     next({
       name: 'login'
@@ -129,6 +136,30 @@ router.beforeEach((to, from, next) => {
       name: 'dashboard'
     })
   }
+  if (to.name === 'book.create' && role !== 'admin')
+    next({
+      name: 'unauthorized'
+    })
+  if (to.name === 'book.edit' && role !== 'admin')
+    next({
+      name: 'unauthorized'
+    })
+  if (to.name === 'category.index' && role !== 'admin')
+    next({
+      name: 'unauthorized'
+    })
+  if (to.name === 'category.create' && role !== 'admin')
+    next({
+      name: 'unauthorized'
+    })
+  if (to.name === 'category.edit' && role !== 'admin')
+    next({
+      name: 'unauthorized'
+    })
+  if (to.name === 'member.index' && role !== 'admin')
+    next({
+      name: 'unauthorized'
+    })
   next()
 })
 

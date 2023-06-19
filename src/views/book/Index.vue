@@ -8,7 +8,16 @@
                 List Buku
             </div>
             <div class="card-body">
-                <div class="d-flex justify-content-end mb-2">
+                <div class="d-flex justify-content-between mb-2">
+                    <div class="col-2">
+                        <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+                            <option selected>Filter Kategori</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+                    </div>
+
                     <div class="dropdown">
                         <a class="btn btn-sm btn-outline-secondary dropdown-toggle" href="#" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -147,7 +156,7 @@ export default {
                 this.load()
             } else {
                 this.search = value
-                // this.page = 1
+                this.page = 1
                 this.load()
             }
         },
