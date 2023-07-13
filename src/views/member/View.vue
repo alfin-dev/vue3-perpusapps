@@ -59,7 +59,7 @@ export default {
     },
     methods: {
         load() {
-            axios.get('http://perpus-api.mamorasoft.com/api/book/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
+            axios.get(this.apiUrl + 'api/book/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
                 this.formView = res.data.data.book;
                 this.nama_kategori = this.formView.category.nama_kategori;
             }).catch((err) => {

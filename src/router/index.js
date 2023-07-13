@@ -9,6 +9,7 @@ import BookCreate from '../views/book/Create.vue'
 import BookIndex from '../views/book/Index.vue'
 import BookEdit from '../views/book/Edit.vue'
 
+
 const routes = [{
     path: '/',
     name: 'home',
@@ -116,8 +117,9 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  var authenticated = localStorage.getItem('token')
-  var role = localStorage.getItem('role')
+  const authenticated = localStorage.getItem('token')
+  const role = localStorage.getItem('role')
+  const page = ['book.create', 'book.edit', 'category.index', 'category.create', 'category.edit', 'member.index']
   if (to.name !== 'login' && to.name !== 'register' && !authenticated) {
     next({
       name: 'login'
@@ -136,27 +138,7 @@ router.beforeEach((to, from, next) => {
       name: 'dashboard'
     })
   }
-  if (to.name === 'book.create' && role !== 'admin')
-    next({
-      name: 'unauthorized'
-    })
-  if (to.name === 'book.edit' && role !== 'admin')
-    next({
-      name: 'unauthorized'
-    })
-  if (to.name === 'category.index' && role !== 'admin')
-    next({
-      name: 'unauthorized'
-    })
-  if (to.name === 'category.create' && role !== 'admin')
-    next({
-      name: 'unauthorized'
-    })
-  if (to.name === 'category.edit' && role !== 'admin')
-    next({
-      name: 'unauthorized'
-    })
-  if (to.name === 'member.index' && role !== 'admin')
+  if (page.includes(to.name) && role !== 'admin')
     next({
       name: 'unauthorized'
     })

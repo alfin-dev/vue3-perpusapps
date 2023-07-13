@@ -77,7 +77,7 @@ export default {
     },
     methods: {
         load() {
-            axios.get('http://perpus-api.mamorasoft.com/api/user/all', {
+            axios.get(this.apiUrl + 'api/user/all', {
                 'headers': { 'Authorization': 'Bearer ' + this.token },
                 'params': {
                     page: this.page,
@@ -100,57 +100,6 @@ export default {
         clickCallback(pageNum) {
             this.page = pageNum
             this.load()
-        },
-
-        Search: function (value) {
-            if (value == null || value == '') {
-                this.page = 1
-                this.search = ''
-                this.load()
-            } else {
-                this.search = value
-                this.page = 1
-                this.load()
-            }
-        },
-
-        deleteBook(params) {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "Data buku yang sudah dihapus tidak dapat dikembalikan!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, I am sure!',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    console.log(params);
-                    axios.delete('http://perpus-api.mamorasoft.com/api/book/' + params + '/delete', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                        if (res.data.status == 200) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: res.data.message,
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
-                            this.page = 1
-                            this.load()
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: res.data.message.message,
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
-                            // this.$router.push({ path: '/' })
-                        }
-                    }).catch((err) => {
-                        console.log(err.message);
-                    })
-                }
-            })
         },
     },
 }

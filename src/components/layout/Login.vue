@@ -8,7 +8,7 @@
         </div>
         <div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
           <h3 class="form-label mb-3" for="form1Example13">Login</h3>
-          <form>
+          <form v-on:keyup.enter="login">
             <div class="form-outline mb-4">
               <input type="text" id="form1Example13" class="form-control form-control-lg" v-model="username" />
               <label class="form-label" for="form1Example13">Username</label>
@@ -22,7 +22,7 @@
             <!-- Submit button -->
             <div>
               <loading v-model:active="isLoading" :can-cancel="false" :is-full-page="fullPage" />
-              <button type="button" class="btn btn-primary btn-lg btn-block" @click="storeUser">Sign in</button>
+              <button type="button" class="btn btn-primary btn-lg btn-block" @click="login">Sign in</button>
             </div>
 
             <div class="divider d-flex align-items-center my-4">
@@ -64,7 +64,7 @@ export default {
   },
 
   methods: {
-    async storeUser() {
+    async login() {
       this.isLoading = true
       try {
         const user = await axios.post(

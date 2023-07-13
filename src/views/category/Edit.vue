@@ -40,7 +40,7 @@ export default {
     },
     methods: {
         load() {
-            axios.get('http://perpus-api.mamorasoft.com/api/category/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
+            axios.get(this.apiUrl + 'api/category/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
                 this.formEdit = res.data.data.category;
             }).catch((err) => {
                 console.log(err.message);
@@ -48,7 +48,7 @@ export default {
         },
         async storeCategory() {
             axios.post(
-                "http://perpus-api.mamorasoft.com/api/category/update/" + this.id,
+                this.apiUrl + "api/category/update/" + this.id,
                 {
                     ...this.formEdit,
                 },

@@ -49,8 +49,7 @@
                     </div>
                     <div class="form-group">
                         <label for="stok">Tanggal Kembali</label>
-                        <input type="date" class="form-control" id="tanggal_kembali" placeholder="Stok" :min="
-                            tanggal_pinjam" v-model="tanggal_kembali">
+                        <input type="date" class="form-control" id="tanggal_kembali" placeholder="Stok" :min="tanggal_pinjam" v-model="tanggal_kembali">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -89,7 +88,7 @@ export default {
     },
     methods: {
         load() {
-            axios.get('http://perpus-api.mamorasoft.com/api/book/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
+            axios.get(this.apiUrl + 'api/book/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
                 this.formView = res.data.data.book;
                 this.nama_kategori = this.formView.category.nama_kategori;
             }).catch((err) => {
@@ -103,7 +102,7 @@ export default {
             convert_tanggal_pinjam = this.dateFormater(convert_tanggal_pinjam)
             convert_tanggal_kembali = this.dateFormater(convert_tanggal_kembali)
             axios.post(
-                "http://perpus-api.mamorasoft.com/api/peminjaman/book/" + this.formView.id + "/member/" + this.id_user,
+                this.apiUrl + "api/peminjaman/book/" + this.formView.id + "/member/" + this.id_user,
                 {
                     id_buku: this.formView.id,
                     id_member: this.id_user,

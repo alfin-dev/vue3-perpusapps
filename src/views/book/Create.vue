@@ -52,7 +52,6 @@
 </template>
 
 <script>
-import { useRoute } from 'vue-router';
 import axios from 'axios'
 import Swal from 'sweetalert2'
 export default {
@@ -75,7 +74,7 @@ export default {
     },
     methods: {
         loadCategory() {
-            axios.get('http://perpus-api.mamorasoft.com/api/category/all/all', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
+            axios.get(this.apiUrl + 'api/category/all/all', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
                 this.categories = res.data.data.categories
             }).catch((err) => {
                 console.log(err.message);

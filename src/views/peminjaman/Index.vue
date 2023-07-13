@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container my-4">
         <div class="card rounded shadow">
             <div class="card-header">
                 List Peminjaman
@@ -12,6 +12,7 @@
                             <tr>
                                 <th>Cover</th>
                                 <th>Title</th>
+                                <th>Peminjam</th>
                                 <th>Tanggal Peminjaman</th>
                                 <th>Tanggal Pengembalian</th>
                                 <th>Status</th>
@@ -22,6 +23,7 @@
                             <tr v-for="book in books.data">
                                 <td><img :src="basepath + book.book.path" alt="" style="width: 40px; height: 40px;"></td>
                                 <td>{{ book.book.judul }}</td>
+                                <td>{{ book.member.name }}</td>
                                 <td>{{ book.tanggal_peminjaman }}</td>
                                 <td>{{ book.tanggal_pengembalian }}</td>
                                 <td>
@@ -76,7 +78,7 @@ export default {
     methods: {
         load() {
             this.isLoading = true
-            axios.get('http://perpus-api.mamorasoft.com/api/peminjaman', {
+            axios.get(this.apiUrl + 'api/peminjaman', {
                 'headers': { 'Authorization': 'Bearer ' + this.token },
                 'params': {
                     page: this.page,
@@ -100,56 +102,6 @@ export default {
         clickCallback(pageNum) {
             this.page = pageNum
             this.load()
-        },
-
-        Search: function (value) {
-            if (value == null || value == '') {
-                this.search = ''
-                this.page = 1
-                this.load()
-            } else {
-                this.search = value
-                this.page = 1
-                this.load()
-            }
-        },
-
-        deleteBook(params) {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "Data buku yang sudah dihapus tidak dapat dikembalikan!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, I am sure!',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.delete('http://perpus-api.mamorasoft.com/api/book/' + params + '/delete', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                        if (res.data.status == 200) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: res.data.message,
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
-                            this.page = 1
-                            this.load()
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: res.data.message.message,
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
-                            // this.$router.push({ path: '/' })
-                        }
-                    }).catch((err) => {
-                        console.log(err.message);
-                    })
-                }
-            })
         },
     },
 }

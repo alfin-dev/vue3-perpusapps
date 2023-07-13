@@ -1,24 +1,15 @@
 <template>
     <div class="container my-4">
-        <div class="d-flex justify-content-end mb-2">
-            <router-link :to="{ name: 'book.create' }" class="btn btn-primary">Create</router-link>
+        <div v-if="role == 'admin'" class="d-flex justify-content-end mb-2">
+            <router-link :to="{ name: 'book.create' }" class="btn btn-sm btn-outline-primary">Create new book</router-link>
         </div>
         <div class="card rounded shadow">
             <div class="card-header text-center">
-                List Buku
+                Books
             </div>
             <div class="card-body">
-                <div class="d-flex justify-content-between mb-2">
-                    <div class="col-2">
-                        <select class="form-select form-select-sm" aria-label=".form-select-sm example">
-                            <option selected>Filter Kategori</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                        </select>
-                    </div>
-
-                    <div class="dropdown">
+                <div class="d-flex mb-2">
+                    <div v-if="role == 'admin'" class="dropdown ms-auto p-1">
                         <a class="btn btn-sm btn-outline-secondary dropdown-toggle" href="#" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             Export/Import
@@ -28,56 +19,98 @@
                             <li><a class="dropdown-item" href="#" @click="exportBook('pdf')">Export PDF</a></li>
                             <li><a class="dropdown-item" href="#" @click="exportBook('excel')">Export Excel</a></li>
                             <li><a class="dropdown-item" href="#" @click="importBook()">Import Excel</a></li>
-                            <!-- <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                    data-bs-target="#exampleModal">Import Excel</a></li> -->
                         </ul>
                     </div>
                 </div>
-                <div class="input-group d-flex justify-content-end">
-                    <div class="form-outline">
+                <div class="input-group d-flex">
+                    <div class="p-1">
+                        <select class="form-select form-select-sm" aria-label=".form-select-sm example"
+                            @change="filterCategory" v-model="key_category">
+                            <option selected value="0">Filter Kategori</option>
+                            <option v-for="category in categories" :value="category.id">{{ category.nama_kategori }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="p-1">
+                        <button class="btn btn-outline-secondary btn-sm" @click="resetFilterCategory">
+                            <fa icon="arrow-rotate-left" size="lg" />
+                        </button>
+                    </div>
+                    <div class="form-outline ms-auto">
                         <input type="search" id="form1" class="form-control" @keyup="Search($event.target.value)"
                             placeholder="Search..." />
                     </div>
                 </div>
-                <div class="table table-responsive">
+                <div>
                     <loading v-model:active="isLoading" :can-cancel="false" :is-full-page="fullPage" :height=64 :width=64 />
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Cover</th>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for=" book in books.data">
-                                <td><img :src="apiUrl + basepath + book.path" alt="" style="width: 40px; height: 40px;">
-                                </td>
-                                <td>{{ book.judul }}</td>
-                                <td>{{ book.category.nama_kategori }}</td>
-                                <td>
-                                    <div class="btn-group me-2">
-                                        <router-link :to="{ name: 'book.view', params: { id: book.id } }">
-                                            <fa icon="eye" class="text-primary" />
-                                        </router-link>
+                    <div v-if="role == 'member'" class="row mt-2">
+                        <div v-for="book in books.data" class="col-xl-4 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body" @click="viewBook(book.id)" style="cursor: pointer;">
+                                    <div class="row no-gutters">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                {{ book.judul }}</div>
+                                            <div class="h6 mb-0 text-gray-800">
+                                                {{ book.category.nama_kategori }} </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <img :src="apiUrl + basepath + book.path" alt=""
+                                                style="width: 6rem; height: 6rem;">
+                                        </div>
                                     </div>
-                                    <div class="btn-group me-2">
-                                        <router-link :to="{ name: 'book.edit', params: { id: book.id } }">
-                                            <fa icon="pencil" class="text-secondary" />
-                                        </router-link>
-                                    </div>
-                                    <div class="btn-group">
-                                        <button type="button" class="nav-link" @click="deleteBook(book.id)">
-                                            <fa icon="trash" class="text-danger" />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table table-responsive">
+                        <table v-if="role == 'admin'" class="table">
+                            <thead>
+                                <tr>
+                                    <th>Cover</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-if="books.data.length == 0">
+                                    <td colspan="4" class="text-center">No book available on this page</td>
+                                </tr>
+                                <tr v-for=" book in books.data">
+                                    <td><img :src="apiUrl + basepath + book.path" alt="" style="width: 5rem; height: 5rem;">
+                                    </td>
+                                    <td>{{ book.judul }}</td>
+                                    <td>{{ book.category.nama_kategori }}</td>
+                                    <td>
+                                        <div class="btn-group me-2">
+                                            <router-link :to="{ name: 'book.view', params: { id: book.id } }">
+                                                <fa icon="eye" class="text-primary" />
+                                            </router-link>
+                                        </div>
+                                        <div v-if="role == 'admin'" class="btn-group me-2">
+                                            <router-link :to="{ name: 'book.edit', params: { id: book.id } }">
+                                                <fa icon="pencil" class="text-secondary" />
+                                            </router-link>
+                                        </div>
+                                        <div v-if="role == 'admin'" class="btn-group">
+                                            <button type="button" class="nav-link" @click="deleteBook(book.id)">
+                                                <fa icon="trash" class="text-danger" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="example-one">
+                <div v-if="role == 'member'" class="example-one text-center">
+                    <vue-awesome-paginate :total-items="books.total" :items-per-page="books.per_page" :max-pages-shown="3"
+                        :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />
+                </div>
+                <div v-if="role == 'admin'" class="example-one">
                     <vue-awesome-paginate :total-items="books.total" :items-per-page="books.per_page" :max-pages-shown="3"
                         :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />
                 </div>
@@ -92,6 +125,36 @@ import Swal from 'sweetalert2'
 import Loading from 'vue-loading-overlay';
 
 export default {
+    data() {
+        return {
+            books: {
+                data: [],
+            },
+            count_books: 0,
+            categories: {},
+            key_category: 0,
+            page: 1,
+            search: '',
+            basepath: 'storage/',
+            token: localStorage.getItem('token'),
+            role: localStorage.getItem('role'),
+            isLoading: false,
+            fullPage: false,
+        }
+    },
+
+    components: {
+        Loading
+    },
+
+    beforeMount() {
+        this.load()
+        this.loadCategory()
+    },
+
+    mounted() {
+    },
+
     updated() {
         const parentVue = this
         let buttonDownload = document.getElementById('btn-download-template')
@@ -101,38 +164,45 @@ export default {
             })
         }
     },
-    data() {
-        return {
-            books: [],
-            page: 1,
-            search: '',
-            basepath: 'storage/',
-            token: localStorage.getItem('token'),
-            isLoading: false,
-            fullPage: false,
-        }
-    },
-    components: {
-        Loading
-    },
-    beforeMount() {
-        this.load()
-    },
-    mounted() {
-    },
+
     methods: {
         load() {
             this.isLoading = true
-            axios.get(this.apiUrl + 'api/book/all', {
-                'headers': { 'Authorization': 'Bearer ' + this.token },
-                'params': {
+            let params
+            if (this.key_category == 0)
+                params = {
                     page: this.page,
                     search: this.search,
-                    per_page: 10
-                },
+                    per_page: 12
+                }
+            else
+                params = {
+                    page: this.page,
+                    search: this.search,
+                    per_page: 12,
+                    filter: this.key_category
+                }
+            axios.get(this.apiUrl + 'api/book/all', {
+                'headers': { 'Authorization': 'Bearer ' + this.token },
+                'params': params,
             }).then(res => {
                 this.books = res.data.data.books
                 this.isLoading = false
+            }).catch((err) => {
+                this.isLoading = false
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'terjadi kesalahaan saat load data buku' + err,
+                })
+            })
+        },
+
+        loadCategory() {
+            axios.get(this.apiUrl + 'api/category/all/all', {
+                'headers': { 'Authorization': 'Bearer ' + this.token },
+            }).then(res => {
+                this.categories = res.data.data.categories
             }).catch((err) => {
                 Swal.fire({
                     icon: 'error',
@@ -146,6 +216,15 @@ export default {
 
         clickCallback(pageNum) {
             this.page = pageNum
+            this.load()
+        },
+
+        filterCategory() {
+            this.load()
+        },
+
+        resetFilterCategory() {
+            this.key_category = 0
             this.load()
         },
 
@@ -280,6 +359,10 @@ export default {
             }).catch((err) => {
                 console.log(err.message);
             })
+        },
+
+        viewBook(book_id) {
+            this.$router.push({ name: 'book.view', params: { id: book_id } })
         }
     },
 }

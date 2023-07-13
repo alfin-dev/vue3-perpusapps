@@ -81,14 +81,14 @@ export default {
     },
     methods: {
         load() {
-            axios.get('http://perpus-api.mamorasoft.com/api/book/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
+            axios.get(this.apiUrl + 'api/book/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
                 this.formEdit = res.data.data.book;
             }).catch((err) => {
                 console.log(err.message);
             })
         },
         loadCategory() {
-            axios.get('http://perpus-api.mamorasoft.com/api/category/all/all', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
+            axios.get(this.apiUrl + 'api/category/all/all', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
                 this.categories = res.data.data.categories
                 console.log(this.categories);
             }).catch((err) => {
@@ -98,7 +98,7 @@ export default {
         },
         async storeBook() {
             axios.post(
-                "http://perpus-api.mamorasoft.com/api/book/" + this.id + "/update",
+                this.apiUrl + "api/book/" + this.id + "/update",
                 {
                     ...this.formEdit,
                     path: this.image

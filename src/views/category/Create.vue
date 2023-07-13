@@ -21,7 +21,6 @@
 </template>
 
 <script>
-import { useRoute } from 'vue-router';
 import axios from 'axios'
 import Swal from 'sweetalert2'
 export default {
@@ -38,7 +37,7 @@ export default {
     methods: {
         async storeCategory() {
             axios.post(
-                "http://perpus-api.mamorasoft.com/api/category/create",
+                this.apiUrl + "api/category/create",
                 {
                     ...this.formEdit,
                 },

@@ -1,7 +1,8 @@
 <template>
     <div class="container my-4">
         <div class="d-flex justify-content-end mb-2">
-            <router-link :to="{ name: 'category.create' }" class="btn btn-primary">Create</router-link>
+            <router-link :to="{ name: 'category.create' }" class="btn btn-sm btn-outline-primary">Create new
+                category</router-link>
         </div>
         <div class="card rounded shadow">
             <div class="card-header">
@@ -22,7 +23,7 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>No.</th>
+                                <th style="width: 5%;">No.</th>
                                 <th>Nama Kategori</th>
                                 <th>Action</th>
                             </tr>
@@ -82,7 +83,7 @@ export default {
     methods: {
         load() {
             this.isLoading = true
-            axios.get('http://perpus-api.mamorasoft.com/api/category/all', {
+            axios.get(this.apiUrl + 'api/category/all', {
                 'headers': { 'Authorization': 'Bearer ' + this.token },
                 'params': {
                     page: this.page,
@@ -130,7 +131,7 @@ export default {
                 confirmButtonText: 'Yes, I am sure!',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.delete('http://perpus-api.mamorasoft.com/api/category/' + params + '/delete', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
+                    axios.delete(this.apiUrl + 'api/category/' + params + '/delete', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
                         if (res.data.status == 200) {
                             Swal.fire({
                                 icon: 'success',

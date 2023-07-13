@@ -25,8 +25,13 @@
                             peminjaman.tanggal_pengembalian }}</span></h6>
                         <h5 class="colors"></h5>
                         <div class="action">
-                            <button v-if="peminjaman.status == '2'" class="add-to-cart btn btn-default btn btn-sm"
-                                type="button" data-bs-toggle="modal" data-bs-target="#modalPinjam">Kembalikan
+                            <button v-if="peminjaman.status == '2' && tanggal_pengembalian >= tanggal_current"
+                                class="btn btn-default btn-warning" type="button" data-bs-toggle="modal"
+                                data-bs-target="#modalPinjam">Kembalikan
+                                Buku</button>
+                            <button v-if="peminjaman.status == '2' && tanggal_pengembalian < tanggal_current"
+                                class="btn btn-default btn-danger" type="button" data-bs-toggle="modal"
+                                data-bs-target="#modalPinjam">(Terlambat) Kembalikan
                                 Buku</button>
                             <h6 v-if="peminjaman.status == '3'">Sudah dikembalikan</h6>
                         </div>
@@ -42,14 +47,18 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Pinjam Buku</h1>
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Kembalikan Buku</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="stok">Tanggal Pengembalian</label>
-                        <input type="date" class="form-control" id="tanggal_kembali" placeholder="tanggal kembali"
-                            :min="tanggal_kembali" :max="tanggal_kembali" v-model="tanggal_kembali">
+                        <input v-if="peminjaman.status == '2' && tanggal_pengembalian >= tanggal_current" type="date"
+                            class="form-control" id="tanggal_kembali" placeholder="tanggal kembali"
+                            :min="tanggal_peminjaman" :max="tanggal_pengembalian" v-model="tanggal_kembali">
+                        <input v-if="tanggal_pengembalian < tanggal_current" type="date" class="form-control"
+                            id="tanggal_kembali" placeholder="tanggal kembali" :min="tanggal_peminjaman"
+                            v-model="tanggal_kembali">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -66,17 +75,21 @@
 import { useRoute } from 'vue-router';
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import moment from 'moment'
 
 export default {
     setup() {
     },
+
     data() {
         const route = useRoute()
         return {
             book: {},
             peminjaman: {},
             path: '',
-            tanggal_kembali: new Date().toISOString().slice(0, 10),
+            tanggal_current: new Date().toISOString().slice(0, 10),
+            tanggal_peminjaman: '',
+            tanggal_pengembalian: '',
             basepath: 'http://perpus-api.mamorasoft.com/storage/',
             id: route.params.id,
             token: localStorage.getItem('token'),
@@ -88,9 +101,11 @@ export default {
     },
     methods: {
         load() {
-            axios.get('http://perpus-api.mamorasoft.com/api/peminjaman/show/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
+            axios.get(this.apiUrl + 'api/peminjaman/show/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
                 this.peminjaman = res.data.data.book
                 this.book = this.peminjaman.book
+                this.tanggal_peminjaman = moment(String(this.peminjaman.tanggal_peminjaman)).format('YYYY-MM-DD')
+                this.tanggal_pengembalian = moment(String(this.peminjaman.tanggal_pengembalian)).format('YYYY-MM-DD')
             }).catch((err) => {
                 console.log(err.message)
             })
@@ -100,7 +115,7 @@ export default {
             let convert_tanggal_kembali = new Date(this.tanggal_kembali)
             convert_tanggal_kembali = this.dateFormater(convert_tanggal_kembali)
             axios.post(
-                "http://perpus-api.mamorasoft.com/api/peminjaman/book/" + this.peminjaman.id + "/return",
+                this.apiUrl + "api/peminjaman/book/" + this.peminjaman.id + "/return",
                 {
                     tanggal_pengembalian: convert_tanggal_kembali,
                 },
