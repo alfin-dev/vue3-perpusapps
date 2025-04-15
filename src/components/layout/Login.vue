@@ -68,15 +68,20 @@ export default {
       this.isLoading = true
       try {
         const user = await axios.post(
-          "http://perpus-api.mamorasoft.com/api/login",
+          this.apiUrl + "/login",
           {
             username: this.username,
             password: this.password
+          },
+          {
+              'headers': {
+                  'Content-Type': 'multipart/form-data',
+              }
           }
         );
-        localStorage.setItem('token', user.data.data.token);
-        localStorage.setItem('role', user.data.data.user.roles[0].name);
-        localStorage.setItem('id_user', user.data.data.user.id);
+        localStorage.setItem('token', user.data.token);
+        localStorage.setItem('role', user.data.user.Role.Name);
+        localStorage.setItem('id_user', user.data.user.ID);
         const Toast = Swal.mixin({
           toast: true,
           position: 'top-end',

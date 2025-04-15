@@ -30,7 +30,7 @@
                     </li>
                 </ul>
                 <span class="navbar-text me-2">
-                    {{ user.name }},
+                    {{ user.username }},
                 </span>
                 <div class="d-flex">
                     <button class="nav-link" @click="Logout">
@@ -61,8 +61,9 @@ export default {
     },
     methods: {
         getUser() {
-            axios.get('http://perpus-api.mamorasoft.com/api/user/' + this.id_user, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                this.user = res.data.data.user
+            axios.get( this.apiUrl + '/user/' + this.id_user,
+            { 'headers': { 'Authorization': this.token } }).then(res => {
+                this.user = res.data.data
             }).catch((err) => {
                 console.log(err.message);
             })

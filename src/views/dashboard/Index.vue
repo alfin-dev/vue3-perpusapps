@@ -18,7 +18,7 @@
                                             <div class="col mr-2">
                                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                                     Books</div>
-                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ dashboard.totalBuku
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ dashboard.total_buku
                                                 }}
                                                 </div>
                                             </div>
@@ -37,7 +37,7 @@
                                             <div class="col mr-2">
                                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                                     Stok</div>
-                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ dashboard.totalStok
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ dashboard.total_stok
                                                 }}
                                                 </div>
                                             </div>
@@ -57,7 +57,7 @@
                                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                                     Dipinjam</div>
                                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{
-                                                    dashboard.totalDipinjam }}</div>
+                                                    dashboard.total_dipinjam }}</div>
                                             </div>
                                             <div class="col-auto">
                                                 <fa icon="book-open-reader" class="fa-2x text-secondary"></fa>
@@ -75,7 +75,7 @@
                                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                                     Dikembalikan</div>
                                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{
-                                                    dashboard.totalDikembalikan }}</div>
+                                                    dashboard.total_dikembalikan }}</div>
                                             </div>
                                             <div class="col-auto">
                                                 <fa icon="book-open-reader" class="fa-2x text-secondary"></fa>
@@ -113,10 +113,10 @@ export default {
     methods: {
 
         load() {
-            axios.get(this.apiUrl + 'api/book/dashboard', {
-                'headers': { 'Authorization': 'Bearer ' + this.token },
+            axios.get(this.apiUrl + '/dashboard', {
+                'headers': { 'Authorization': this.token },
             }).then(res => {
-                this.dashboard = res.data.data.dashboard
+                this.dashboard = res.data.data
             }).catch((err) => {
                 alert(err.message);
             })

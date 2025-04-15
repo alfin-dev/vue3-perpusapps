@@ -27,7 +27,7 @@
                         <select class="form-select form-select-sm" aria-label=".form-select-sm example"
                             @change="filterCategory" v-model="key_category">
                             <option selected value="0">Filter Kategori</option>
-                            <option v-for="category in categories" :value="category.id">{{ category.nama_kategori }}
+                            <option v-for="category in categories" :value="category.ID">{{ category.nama_kategori }}
                             </option>
                         </select>
                     </div>
@@ -47,13 +47,13 @@
                     <div v-if="role == 'member'" class="row mt-2">
                         <div v-for="book in books.data" class="col-xl-4 col-md-6 mb-4">
                             <div class="card border-left-primary shadow h-100 py-2">
-                                <div class="card-body" @click="viewBook(book.id)" style="cursor: pointer;">
+                                <div class="card-body" @click="viewBook(book.ID)" style="cursor: pointer;">
                                     <div class="row no-gutters">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                                 {{ book.judul }}</div>
                                             <div class="h6 mb-0 text-gray-800">
-                                                {{ book.category.nama_kategori }} </div>
+                                                {{ book.Category.nama_kategori }} </div>
                                         </div>
                                         <div class="col-auto">
                                             <img :src="apiUrl + basepath + book.path" alt=""
@@ -83,20 +83,20 @@
                                     <td><img :src="apiUrl + basepath + book.path" alt="" style="width: 5rem; height: 5rem;">
                                     </td>
                                     <td>{{ book.judul }}</td>
-                                    <td>{{ book.category.nama_kategori }}</td>
+                                    <td>{{ book.Category.nama_kategori }}</td>
                                     <td>
                                         <div class="btn-group me-2">
-                                            <router-link :to="{ name: 'book.view', params: { id: book.id } }">
+                                            <router-link :to="{ name: 'book.view', params: { id: book.ID } }">
                                                 <fa icon="eye" class="text-primary" />
                                             </router-link>
                                         </div>
                                         <div v-if="role == 'admin'" class="btn-group me-2">
-                                            <router-link :to="{ name: 'book.edit', params: { id: book.id } }">
+                                            <router-link :to="{ name: 'book.edit', params: { id: book.ID } }">
                                                 <fa icon="pencil" class="text-secondary" />
                                             </router-link>
                                         </div>
                                         <div v-if="role == 'admin'" class="btn-group">
-                                            <button type="button" class="nav-link" @click="deleteBook(book.id)">
+                                            <button type="button" class="nav-link" @click="deleteBook(book.ID)">
                                                 <fa icon="trash" class="text-danger" />
                                             </button>
                                         </div>
@@ -107,12 +107,24 @@
                     </div>
                 </div>
                 <div v-if="role == 'member'" class="example-one text-center">
-                    <vue-awesome-paginate :total-items="books.total" :items-per-page="books.per_page" :max-pages-shown="3"
-                        :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />
+                    <vue-awesome-paginate
+                    v-if="books && books.meta"
+                    :total-items="books.meta.total_data"
+                    :items-per-page="books.meta.limit"
+                    :max-pages-shown="3"
+                    v-model="page"
+                    :hide-prev-next-when-ends="true"
+                    @click="clickCallback"  />
                 </div>
                 <div v-if="role == 'admin'" class="example-one">
-                    <vue-awesome-paginate :total-items="books.total" :items-per-page="books.per_page" :max-pages-shown="3"
-                        :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />
+                    <vue-awesome-paginate
+                    v-if="books && books.meta"
+                    :total-items="books.meta.total_data"
+                    :items-per-page="books.meta.limit"
+                    :max-pages-shown="3"
+                    v-model="page"
+                    :hide-prev-next-when-ends="true"
+                    @click="clickCallback"  />
                 </div>
             </div>
         </div>
@@ -135,7 +147,7 @@ export default {
             key_category: 0,
             page: 1,
             search: '',
-            basepath: 'storage/',
+            basepath: '/',
             token: localStorage.getItem('token'),
             role: localStorage.getItem('role'),
             isLoading: false,
@@ -173,20 +185,20 @@ export default {
                 params = {
                     page: this.page,
                     search: this.search,
-                    per_page: 12
+                    per_page: 10
                 }
             else
                 params = {
                     page: this.page,
                     search: this.search,
-                    per_page: 12,
+                    per_page: 10,
                     filter: this.key_category
                 }
-            axios.get(this.apiUrl + 'api/book/all', {
-                'headers': { 'Authorization': 'Bearer ' + this.token },
+            axios.get(this.apiUrl + '/buku/get', {
+                'headers': { 'Authorization': this.token },
                 'params': params,
             }).then(res => {
-                this.books = res.data.data.books
+                this.books = res.data
                 this.isLoading = false
             }).catch((err) => {
                 this.isLoading = false
@@ -199,10 +211,10 @@ export default {
         },
 
         loadCategory() {
-            axios.get(this.apiUrl + 'api/category/all/all', {
-                'headers': { 'Authorization': 'Bearer ' + this.token },
+            axios.get(this.apiUrl + '/kategori/get/all', {
+                'headers': { 'Authorization': this.token },
             }).then(res => {
-                this.categories = res.data.data.categories
+                this.categories = res.data.data
             }).catch((err) => {
                 Swal.fire({
                     icon: 'error',
@@ -250,8 +262,8 @@ export default {
                 confirmButtonText: 'Yes, I am sure!',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.delete(this.apiUrl + 'api/book/' + params + '/delete', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                        if (res.data.status == 200) {
+                    axios.delete(this.apiUrl + '/buku/delete/' + params, { 'headers': { 'Authorization': this.token } }).then(res => {
+                        if (res.status == 200) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
@@ -259,7 +271,7 @@ export default {
                                 showConfirmButton: false,
                                 timer: 1500
                             })
-                            this.page = 1
+                            // this.page = 1
                             this.load()
                         } else {
                             Swal.fire({
@@ -285,13 +297,24 @@ export default {
         },
 
         exportBook(params) {
-            axios.get(this.apiUrl + 'api/book/export/' + params, {
-                'headers': { 'Authorization': 'Bearer ' + this.token },
-            }).then(res => {
-                window.open(this.apiUrl + res.data.path, '_blank')
-            }).catch((err) => {
-                console.log(err.message)
-            })
+            if (params == 'pdf') {
+                axios.get(this.apiUrl + '/buku/export-pdf', {
+                    'headers': { 'Authorization': this.token },
+                }).then(res => {
+                    window.open(this.apiUrl + '/' + res.data.path, '_blank')
+                }).catch((err) => {
+                    console.log(err.message)
+                })
+            } else {
+                axios.get(this.apiUrl + '/buku/export', {
+                    'headers': { 'Authorization': this.token },
+                }).then(res => {
+                    window.open(this.apiUrl + '/' + res.data.path, '_blank')
+                }).catch((err) => {
+                    console.log(err.message)
+                })
+            }
+
         },
 
         async importBook() {
@@ -309,19 +332,19 @@ export default {
             if (file) {
                 if (file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
                     axios.post(
-                        "http://perpus-api.mamorasoft.com/api/book/import/excel",
+                        this.apiUrl + "/buku/import",
                         {
                             file_import: file
                         },
                         {
                             'headers': {
                                 'Content-Type': 'multipart/form-data',
-                                'Authorization': 'Bearer ' + this.token
+                                'Authorization': this.token
                             }
                         }
                     ).then(res => {
                         console.log(res.data);
-                        if (res.data.status == 200) {
+                        if (res.status == 200) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
@@ -352,10 +375,10 @@ export default {
         },
 
         downloadTemplate() {
-            axios.get(this.apiUrl + 'api/book/download/template', {
-                'headers': { 'Authorization': 'Bearer ' + this.token },
+            axios.get(this.apiUrl + '/buku/download-template-import', {
+                'headers': { 'Authorization': this.token },
             }).then(res => {
-                window.open(this.apiUrl + res.data.path, '_blank')
+                window.open(this.apiUrl + '/' + res.data.path, '_blank')
             }).catch((err) => {
                 console.log(err.message);
             })

@@ -2,6 +2,7 @@ import {
   createRouter,
   createWebHistory
 } from 'vue-router'
+import axios from 'axios'
 import Home from '../components/layout/Home.vue'
 import PageNotFound from '../components/layout/404.vue'
 import Unauthorized from '../components/layout/401.vue'
@@ -116,8 +117,29 @@ const router = createRouter({
   routes
 })
 
+let apiUrl = ''
+export const setApiUrl = (url) => {
+  apiUrl = url
+}
+
 router.beforeEach((to, from, next) => {
   const authenticated = localStorage.getItem('token')
+  if (authenticated) {
+    axios.get(apiUrl + '/check-token', {
+      headers: {
+        Authorization: `${authenticated}`
+      }
+    })
+    .catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('role')
+        next({
+          name: 'login'
+        })
+      }
+    })
+  }
   const role = localStorage.getItem('role')
   const page = ['book.create', 'book.edit', 'category.index', 'category.create', 'category.edit', 'member.index']
   if (to.name !== 'login' && to.name !== 'register' && !authenticated) {

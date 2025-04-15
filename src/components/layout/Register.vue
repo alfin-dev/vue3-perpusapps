@@ -67,17 +67,22 @@ export default {
         async registerUser() {
             try {
                 await axios.post(
-                    "http://perpus-api.mamorasoft.com/api/register",
+                    this.apiUrl + "/register",
                     {
                         name: this.name,
                         username: this.username,
                         email: this.email,
                         password: this.password,
                         confirm_password: this.retypePassword
+                    },
+                    {
+                        'headers': {
+                            'Content-Type': 'multipart/form-data',
+                        }
                     }
                 ).then(res => {
                     console.log(res.data);
-                    if (res.data.status == 409) {
+                    if (res.status == 409) {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
@@ -86,7 +91,7 @@ export default {
                             timer: 1500
                         })
                         // this.$router.push({ name: 'register' })
-                    } else if (res.data.status == 200) {
+                    } else if (res.status == 200) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success',

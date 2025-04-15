@@ -14,8 +14,8 @@
                     <div class="form-group">
                         <label for="judul">Kategori</label>
                         <select class="form-select" v-model="formEdit.category_id">
-                            <option v-for="category in categories" :value="category.id">
-                                {{ category.nama_kategori }}
+                            <option v-for="category in categories" :value="category.ID">
+                                {{ category.NamaKategori }}
                             </option>
                         </select>
                     </div>
@@ -74,8 +74,9 @@ export default {
     },
     methods: {
         loadCategory() {
-            axios.get(this.apiUrl + 'api/category/all/all', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                this.categories = res.data.data.categories
+            axios.get(this.apiUrl + '/kategori/get/all', { 'headers': { 'Authorization': this.token } }).then(res => {
+                this.categories = res.data.data
+                console.log(this.categories)
             }).catch((err) => {
                 console.log(err.message);
 
@@ -83,7 +84,7 @@ export default {
         },
         async storeBook() {
             axios.post(
-                "http://perpus-api.mamorasoft.com/api/book/create",
+                this.apiUrl + "/buku/create",
                 {
                     ...this.formEdit,
                     path: this.image
@@ -91,11 +92,11 @@ export default {
                 {
                     'headers': {
                         'Content-Type': 'multipart/form-data',
-                        'Authorization': 'Bearer ' + this.token
+                        'Authorization': this.token
                     }
                 }
             ).then(res => {
-                if (res.data.status == 201) {
+                if (res.status == 201) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
@@ -106,7 +107,6 @@ export default {
                         this.$router.push({ path: '/book' })
                     })
                 } else {
-                    console.log(res.data.message);
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',

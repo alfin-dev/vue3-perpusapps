@@ -14,7 +14,7 @@
                     <div class="form-group">
                         <label for="judul">Kategori</label>
                         <select class="form-select" v-model="formEdit.category_id">
-                            <option v-for="category in categories" :value="category.id">
+                            <option v-for="category in categories" :value="category.ID">
                                 {{ category.nama_kategori }}
                             </option>
                         </select>
@@ -66,7 +66,7 @@ export default {
             book: [],
             categories: [],
             formEdit: {},
-            basepath: 'http://perpus-api.mamorasoft.com/storage/',
+            basepath: this.apiUrl + "/",
             item: {
                 image: null,
                 imageUrl: null
@@ -81,24 +81,24 @@ export default {
     },
     methods: {
         load() {
-            axios.get(this.apiUrl + 'api/book/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                this.formEdit = res.data.data.book;
+            axios.get(this.apiUrl + '/buku/detail/' + this.id, { 'headers': { 'Authorization': this.token } }).then(res => {
+                this.formEdit = res.data.data;
             }).catch((err) => {
                 console.log(err.message);
             })
         },
         loadCategory() {
-            axios.get(this.apiUrl + 'api/category/all/all', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                this.categories = res.data.data.categories
-                console.log(this.categories);
+            axios.get(this.apiUrl + '/kategori/get/all', { 'headers': { 'Authorization': this.token } }).then(res => {
+                this.categories = res.data.data
+                console.log(this.categories)
             }).catch((err) => {
                 console.log(err.message);
 
             })
         },
         async storeBook() {
-            axios.post(
-                this.apiUrl + "api/book/" + this.id + "/update",
+            axios.put(
+                this.apiUrl + "/buku/update/" + this.id,
                 {
                     ...this.formEdit,
                     path: this.image
@@ -106,11 +106,11 @@ export default {
                 {
                     'headers': {
                         'Content-Type': 'multipart/form-data',
-                        'Authorization': 'Bearer ' + this.token
+                        'Authorization': this.token
                     }
                 }
             ).then(res => {
-                if (res.data.status == 200) {
+                if (res.status == 200) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',

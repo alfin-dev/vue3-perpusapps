@@ -4,6 +4,7 @@ import {
 } from 'vue'
 import App from './App.vue'
 import router from './router'
+import { setApiUrl } from './router'
 
 import {
     library
@@ -29,8 +30,9 @@ import {
 import 'vue-loading-overlay/dist/css/index.css';
 
 const app = createApp(App)
-app.config.globalProperties.apiUrl = 'http://perpus-api.mamorasoft.com/'
+app.config.globalProperties.apiUrl = 'http://localhost:8081'
 app.use(router)
+setApiUrl(app.config.globalProperties.apiUrl)
 app.use(VueAwesomePaginate)
 app.use(LoadingPlugin)
 app.component("fa", FontAwesomeIcon)

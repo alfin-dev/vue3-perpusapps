@@ -77,7 +77,7 @@ export default {
             formView: {},
             tanggal_pinjam: new Date().toISOString().slice(0, 10),
             tanggal_kembali: new Date().toISOString().slice(0, 10),
-            basepath: 'http://perpus-api.mamorasoft.com/storage/',
+            basepath: this.apiUrl + "/",
             id: route.params.id,
             token: localStorage.getItem('token'),
             id_user: localStorage.getItem('id_user')
@@ -88,9 +88,9 @@ export default {
     },
     methods: {
         load() {
-            axios.get(this.apiUrl + 'api/book/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                this.formView = res.data.data.book;
-                this.nama_kategori = this.formView.category.nama_kategori;
+            axios.get(this.apiUrl + '/buku/detail/' + this.id, { 'headers': { 'Authorization': this.token } }).then(res => {
+                this.formView = res.data.data;
+                this.nama_kategori = this.formView.Category.nama_kategori;
             }).catch((err) => {
                 console.log(err.message);
             })
@@ -102,9 +102,9 @@ export default {
             convert_tanggal_pinjam = this.dateFormater(convert_tanggal_pinjam)
             convert_tanggal_kembali = this.dateFormater(convert_tanggal_kembali)
             axios.post(
-                this.apiUrl + "api/peminjaman/book/" + this.formView.id + "/member/" + this.id_user,
+                this.apiUrl + "/peminjaman/create",
                 {
-                    id_buku: this.formView.id,
+                    id_buku: this.formView.ID,
                     id_member: this.id_user,
                     tanggal_peminjaman: convert_tanggal_pinjam,
                     tanggal_pengembalian: convert_tanggal_kembali,
@@ -113,7 +113,7 @@ export default {
                 {
                     'headers': {
                         'Content-Type': 'multipart/form-data',
-                        'Authorization': 'Bearer ' + this.token
+                        'Authorization': this.token
                     }
                 }
             ).then(res => {

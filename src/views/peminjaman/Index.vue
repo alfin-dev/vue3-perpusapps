@@ -21,9 +21,9 @@
                         </thead>
                         <tbody>
                             <tr v-for="book in books.data">
-                                <td><img :src="basepath + book.book.path" alt="" style="width: 40px; height: 40px;"></td>
-                                <td>{{ book.book.judul }}</td>
-                                <td>{{ book.member.name }}</td>
+                                <td><img :src="basepath + book.Buku.path" alt="" style="width: 40px; height: 40px;"></td>
+                                <td>{{ book.Buku.judul }}</td>
+                                <td>{{ book.Member.name }}</td>
                                 <td>{{ book.tanggal_peminjaman }}</td>
                                 <td>{{ book.tanggal_pengembalian }}</td>
                                 <td>
@@ -32,7 +32,7 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <router-link :to="{ name: 'peminjaman.view', params: { id: book.id } }"
+                                        <router-link :to="{ name: 'peminjaman.view', params: { id: book.ID } }"
                                             class="btn btn-sm btn-outline-success">View</router-link>
                                     </div>
                                 </td>
@@ -41,8 +41,14 @@
                     </table>
                 </div>
                 <div class="example-one">
-                    <vue-awesome-paginate :total-items="books.total" :items-per-page="books.per_page" :max-pages-shown="3"
-                        :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />
+                    <vue-awesome-paginate
+                    v-if="books && books.meta"
+                    :total-items="books.meta.total_data"
+                    :items-per-page="books.meta.limit"
+                    :max-pages-shown="3"
+                    v-model="page"
+                    :hide-prev-next-when-ends="true"
+                    @click="clickCallback"  />
                 </div>
             </div>
         </div>
@@ -61,7 +67,7 @@ export default {
             books: [],
             page: 1,
             search: '',
-            basepath: 'http://perpus-api.mamorasoft.com/storage/',
+            basepath: this.apiUrl + '/',
             token: localStorage.getItem('token'),
             isLoading: false,
             fullPage: false
@@ -78,15 +84,15 @@ export default {
     methods: {
         load() {
             this.isLoading = true
-            axios.get(this.apiUrl + 'api/peminjaman', {
-                'headers': { 'Authorization': 'Bearer ' + this.token },
+            axios.get(this.apiUrl + '/peminjaman/get', {
+                'headers': { 'Authorization': this.token },
                 'params': {
                     page: this.page,
                     search: this.search,
                     per_page: 10
                 },
             }).then(res => {
-                this.books = res.data.data.peminjaman
+                this.books = res.data
                 this.isLoading = false
             }).catch((err) => {
                 Swal.fire({

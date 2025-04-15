@@ -90,7 +90,7 @@ export default {
             tanggal_current: new Date().toISOString().slice(0, 10),
             tanggal_peminjaman: '',
             tanggal_pengembalian: '',
-            basepath: 'http://perpus-api.mamorasoft.com/storage/',
+            basepath: this.apiUrl + '/',
             id: route.params.id,
             token: localStorage.getItem('token'),
             id_user: localStorage.getItem('id_user')
@@ -101,9 +101,10 @@ export default {
     },
     methods: {
         load() {
-            axios.get(this.apiUrl + 'api/peminjaman/show/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                this.peminjaman = res.data.data.book
-                this.book = this.peminjaman.book
+            axios.get(this.apiUrl + '/peminjaman/detail/' + this.id, { 'headers': { 'Authorization': this.token } }).then(res => {
+                this.peminjaman = res.data.data
+                console.log(this.peminjaman.ID)
+                this.book = this.peminjaman.Buku
                 this.tanggal_peminjaman = moment(String(this.peminjaman.tanggal_peminjaman)).format('YYYY-MM-DD')
                 this.tanggal_pengembalian = moment(String(this.peminjaman.tanggal_pengembalian)).format('YYYY-MM-DD')
             }).catch((err) => {
@@ -115,18 +116,18 @@ export default {
             let convert_tanggal_kembali = new Date(this.tanggal_kembali)
             convert_tanggal_kembali = this.dateFormater(convert_tanggal_kembali)
             axios.post(
-                this.apiUrl + "api/peminjaman/book/" + this.peminjaman.id + "/return",
+                this.apiUrl + "/peminjaman/return/" + this.peminjaman.ID,
                 {
                     tanggal_pengembalian: convert_tanggal_kembali,
                 },
                 {
                     'headers': {
                         'Content-Type': 'multipart/form-data',
-                        'Authorization': 'Bearer ' + this.token
+                        'Authorization': this.token
                     }
                 }
             ).then(res => {
-                if (res.data.status == 200) {
+                if (res.status == 200) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',

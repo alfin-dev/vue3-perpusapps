@@ -29,17 +29,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(category, index) in categories.data" :key="category.id">
-                                <td>{{ (categories.current_page - 1) * categories.per_page + (index + 1) }}</td>
+                            <tr v-for="(category, index) in categories.data" :key="category.ID">
+                                <td>{{ (categories.meta.page - 1) * categories.meta.limit + (index + 1) }}</td>
                                 <td>{{ category.nama_kategori }}</td>
                                 <td>
                                     <div class="btn-group me-2">
-                                        <router-link :to="{ name: 'category.edit', params: { id: category.id } }">
+                                        <router-link :to="{ name: 'category.edit', params: { id: category.ID } }">
                                             <fa icon="pencil" class="text-secondary" />
                                         </router-link>
                                     </div>
                                     <div class="btn-group me-2">
-                                        <button type="button" class="nav-link" @click="deleteCategory(category.id)">
+                                        <button type="button" class="nav-link" @click="deleteCategory(category.ID)">
                                             <fa icon="trash" class="text-danger" />
                                         </button>
                                     </div>
@@ -49,8 +49,15 @@
                     </table>
                 </div>
                 <div class="example-one">
-                    <vue-awesome-paginate :total-items="categories.total" :items-per-page="categories.per_page"
-                        :max-pages-shown="3" :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />
+                    <vue-awesome-paginate
+                        v-if="categories && categories.meta"
+                        :total-items="categories.meta.total_data"
+                        :items-per-page="categories.meta.limit"
+                        :max-pages-shown="3"
+                        v-model="page"
+                        :hide-prev-next-when-ends="true"
+                        @click="clickCallback"
+                    />
                 </div>
             </div>
         </div>
@@ -68,7 +75,7 @@ export default {
             categories: [],
             page: 1,
             search: '',
-            basepath: 'http://perpus-api.mamorasoft.com/storage/',
+            basepath: this.baseUrl,
             token: localStorage.getItem('token'),
             isLoading: false,
             fullPage: false
@@ -83,15 +90,15 @@ export default {
     methods: {
         load() {
             this.isLoading = true
-            axios.get(this.apiUrl + 'api/category/all', {
-                'headers': { 'Authorization': 'Bearer ' + this.token },
+            axios.get(this.apiUrl + '/kategori/get', {
+                'headers': { 'Authorization': this.token },
                 'params': {
                     page: this.page,
                     search: this.search,
-                    per_page: 10
+                    limit: 10
                 },
             }).then(res => {
-                this.categories = res.data.data.categories
+                this.categories = res.data
                 this.isLoading = false
             }).catch((err) => {
                 Swal.fire({
@@ -124,15 +131,15 @@ export default {
         deleteCategory(params) {
             Swal.fire({
                 title: "Are you sure?",
-                text: "Data buku yang sudah dihapus tidak dapat dikembalikan!",
+                text: "Data kategori yang dihapus tidak dapat dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 confirmButtonText: 'Yes, I am sure!',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.delete(this.apiUrl + 'api/category/' + params + '/delete', { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                        if (res.data.status == 200) {
+                    axios.delete(this.apiUrl + '/kategori/delete/' + params, { 'headers': { 'Authorization': this.token } }).then(res => {
+                        if (res.status == 200) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
@@ -140,22 +147,26 @@ export default {
                                 showConfirmButton: false,
                                 timer: 1500
                             }).then(() => {
-                                this.page = 1
                                 this.load()
                             })
 
-                            // this.$router.push({ path: '/' })
                         } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Oops...',
-                                text: res.data.message.message,
+                                text: res.data.message,
                                 showConfirmButton: false,
                                 timer: 1500
                             })
-                            // this.$router.push({ path: '/' })
                         }
                     }).catch((err) => {
+                        Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: err.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
                         console.log(err.message);
                     })
                 }

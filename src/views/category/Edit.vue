@@ -2,13 +2,13 @@
     <div class="container">
         <div class="card rounded shadow">
             <div class="card-header">
-                Create Buku
+                Edit Kategori
             </div>
             <div class="card-body">
                 <form>
                     <div class="form-group">
-                        <label for="judul">Judul</label>
-                        <input type="text" class="form-control" id="judul" placeholder="Masukkan judul buku"
+                        <label for="judul">Nama</label>
+                        <input type="text" class="form-control" id="judul" placeholder="Masukkan nama kategori"
                             v-model="formEdit.nama_kategori">
                     </div>
                     <button type="button" class="btn btn-primary mt-5" @click="storeCategory">Submit</button>
@@ -31,6 +31,7 @@ export default {
         const route = useRoute()
         return {
             formEdit: {},
+            baseUrl: this.apiUrl,
             id: route.params.id,
             token: localStorage.getItem('token'),
         }
@@ -40,26 +41,26 @@ export default {
     },
     methods: {
         load() {
-            axios.get(this.apiUrl + 'api/category/' + this.id, { 'headers': { 'Authorization': 'Bearer ' + this.token } }).then(res => {
-                this.formEdit = res.data.data.category;
+            axios.get( this.baseUrl + '/kategori/detail/' + this.id, { 'headers': { 'Authorization': this.token } }).then(res => {
+                this.formEdit = res.data.data;
             }).catch((err) => {
                 console.log(err.message);
             })
         },
         async storeCategory() {
-            axios.post(
-                this.apiUrl + "api/category/update/" + this.id,
+            axios.put(
+                this.apiUrl + "/kategori/update/" + this.id,
                 {
                     ...this.formEdit,
                 },
                 {
                     'headers': {
                         'Content-Type': 'multipart/form-data',
-                        'Authorization': 'Bearer ' + this.token
+                        'Authorization': this.token
                     }
                 }
             ).then(res => {
-                if (res.data.status == 200) {
+                if (res.status == 200) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',

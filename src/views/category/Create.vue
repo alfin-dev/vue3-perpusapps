@@ -37,18 +37,18 @@ export default {
     methods: {
         async storeCategory() {
             axios.post(
-                this.apiUrl + "api/category/create",
+                this.apiUrl + "/kategori/create",
                 {
                     ...this.formEdit,
                 },
                 {
                     'headers': {
                         'Content-Type': 'multipart/form-data',
-                        'Authorization': 'Bearer ' + this.token
+                        'Authorization': this.token
                     }
                 }
             ).then(res => {
-                if (res.data.status == 201) {
+                if (res.status == 201) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
@@ -72,12 +72,6 @@ export default {
                 console.log(err.message);
             })
         },
-        onChangeImage(e) {
-            const file = e.target.files[0]
-            this.image = file
-            console.log(this.image);
-            this.item.imageUrl = URL.createObjectURL(file)
-        }
     },
 }
 </script>

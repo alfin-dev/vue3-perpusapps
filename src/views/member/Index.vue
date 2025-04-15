@@ -13,7 +13,7 @@
                                 <th>Nama</th>
                                 <th>Username</th>
                                 <th>Status User</th>
-                                <th>Action</th>
+                                <!-- <th>Action</th> -->
                             </tr>
                         </thead>
                         <tbody>
@@ -31,8 +31,8 @@
                                 <td>{{ member.name }}</td>
                                 <td>{{ member.username }}</td>
                                 <td>
-                                    <span v-if="member.roles[0].name == 'admin'" class="badge text-bg-success">Admin</span>
-                                    <span v-if="member.roles[0].name == 'member'"
+                                    <span v-if="member.Role.Name == 'admin'" class="badge text-bg-success">Admin</span>
+                                    <span v-if="member.Role.Name == 'member'"
                                         class="badge text-bg-primary">Member</span>
                                 </td>
                                 <td>
@@ -50,8 +50,15 @@
                     </table>
                 </div>
                 <div class="example-one">
-                    <vue-awesome-paginate :total-items="members.total" :items-per-page="members.per_page"
-                        :max-pages-shown="3" :on-click="clickCallback" v-model="page" :hide-prev-next-when-ends="true" />
+                    <vue-awesome-paginate
+                        v-if="categories && categories.meta"
+                        :total-items="categories.meta.total_data"
+                        :items-per-page="categories.meta.limit"
+                        :max-pages-shown="3"
+                        v-model="page"
+                        :hide-prev-next-when-ends="true"
+                        @click="clickCallback"
+                    />
                 </div>
             </div>
         </div>
@@ -68,7 +75,7 @@ export default {
             members: [],
             page: 1,
             search: '',
-            basepath: 'http://perpus-api.mamorasoft.com/storage/',
+            basepath: this.apiUrl + '/',
             token: localStorage.getItem('token'),
         }
     },
@@ -77,15 +84,15 @@ export default {
     },
     methods: {
         load() {
-            axios.get(this.apiUrl + 'api/user/all', {
-                'headers': { 'Authorization': 'Bearer ' + this.token },
+            axios.get(this.apiUrl + '/member/get', {
+                'headers': { 'Authorization': this.token },
                 'params': {
                     page: this.page,
                     search: this.search,
                     per_page: 10
                 },
             }).then(res => {
-                this.members = res.data.data.users
+                this.members = res.data
             }).catch((err) => {
                 Swal.fire({
                     icon: 'error',
